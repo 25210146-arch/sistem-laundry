@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Pesanan - Sistem Laundry O2O</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5 mb-5" style="max-width: 600px;">
+    <div class="card shadow-sm border-warning">
+        <div class="card-header bg-warning text-dark text-center py-3">
+            <h4 class="mb-0">Konfirmasi Pesanan</h4>
+            <small>Harap periksa kembali data Anda sebelum booking</small>
+        </div>
+        <div class="card-body p-4">
+            
+            <div class="alert alert-info pb-0">
+                <p><strong>Catatan:</strong> Tagihan pasti akan diperbarui setelah cucian ditimbang secara langsung di lokasi oleh admin kami.</p>
+            </div>
+
+            <!-- Rangkuman Data -->
+            <table class="table table-borderless">
+                <tr>
+                    <td class="text-muted" width="40%">Nama Lengkap</td>
+                    <td class="fw-bold" th:text="${namaPelanggan}">Budi</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">No. WhatsApp/HP</td>
+                    <td class="fw-bold" th:text="${noHp}">08123456789</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Layanan Pilihan</td>
+                    <td class="fw-bold">
+                        <span th:text="${layanan.jenisLayanan}">Reguler</span> 
+                        (<span th:text="'Rp' + ${layanan.harga} + '/kg'">Rp7000/kg</span>)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Kategori Cucian</td>
+                    <td class="fw-bold text-primary" th:text="${kategoriCucian}">Cuci + Setrika</td>
+                </tr>
+            </table>
+
+            <hr>
+
+            <!-- Form tersembunyi untuk mengirim data ke Controller -->
+            <form action="/simpan-pesanan" method="post" class="mt-4">
+                <input type="hidden" name="namaPelanggan" th:value="${namaPelanggan}">
+                <input type="hidden" name="noHp" th:value="${noHp}">
+                <input type="hidden" name="idLayanan" th:value="${layanan.idLayanan}">
+                <input type="hidden" name="kategoriCucian" th:value="${kategoriCucian}">
+                
+                <div class="d-flex gap-2">
+                    <!-- Tombol kembali menggunakan history browser agar data sebelumnya tidak hilang -->
+                    <button type="button" class="btn btn-outline-secondary w-50" onclick="history.back()">Kembali & Edit</button>
+                    <!-- Tombol submit sesungguhnya -->
+                    <button type="submit" class="btn btn-success w-50">Konfirmasi & Booking</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
