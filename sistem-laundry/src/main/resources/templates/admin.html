@@ -77,12 +77,34 @@
             </div>
         </div>
 
-        <!-- KOLOM KANAN: TABEL PESANAN -->
-        <div class="col-md-8">
+        <!-- KOLOM KANAN: TABEL PESANAN DENGAN TAB & PENCARIAN -->
+        <div class="col-md-8 mb-4">
             <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h5 class="mb-0">Daftar Reservasi & Cucian Masuk</h5>
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h5 class="mb-0">Daftar Reservasi & Cucian Masuk</h5>
+                        <!-- Kotak Pencarian Cepat -->
+                        <div style="min-width: 240px;">
+                            <input type="text" id="searchPesanan" class="form-control form-control-sm" 
+                                   placeholder="🔍 Cari ID, Nama, atau No. HP..." onkeyup="terapkanFilterTabel()">
+                        </div>
+                    </div>
+
+                    <!-- Tombol Tab Filter (Aktif vs Riwayat) -->
+                    <ul class="nav nav-pills nav-fill gap-2" id="tabFilterPesanan">
+                        <li class="nav-item">
+                            <button type="button" id="btnTabAktif" class="nav-link active fw-bold py-2" onclick="pilihTab('AKTIF')">
+                                ⏳ Perlu Diproses (<span id="countAktif">0</span>)
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" id="btnTabRiwayat" class="nav-link bg-light text-dark border fw-bold py-2" onclick="pilihTab('RIWAYAT')">
+                                ✅ Riwayat Selesai / Hangus (<span id="countRiwayat">0</span>)
+                            </button>
+                        </li>
+                    </ul>
                 </div>
+
                 <div class="card-body p-0 table-responsive">
                     <table class="table table-hover table-striped align-middle mb-0">
                         <thead class="table-dark">
@@ -94,8 +116,11 @@
                                 <th class="text-center">Aksi / Tindakan</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr th:each="pesanan : ${daftarPesanan}" th:id="'row-' + ${pesanan.idPesanan}">
+                        <tbody id="tbodyPesanan">
+                            <tr th:each="pesanan : ${daftarPesanan}" 
+                                th:id="'row-' + ${pesanan.idPesanan}"
+                                th:data-status="${pesanan.status}"
+                                th:data-search="${pesanan.idPesanan + ' ' + pesanan.pelanggan.nama + ' ' + pesanan.pelanggan.noHp}">
                                 
                                 <!-- Info Dasar -->
                                 <td>
@@ -169,6 +194,17 @@
                                         <button type="submit" class="btn btn-success btn-sm fw-bold w-100">Bayar & Diambil</button>
                                     </form>
 
+                                    <!-- Penanda jika sudah di riwayat -->
+                                    <span th:if="${pesanan.status == 'DIAMBIL' || pesanan.status == 'HANGUS'}" class="text-muted small">
+                                        Selesai / Arsip
+                                    </span>
+
+                                </td>
+                            </tr>
+                            <!-- Baris kosong jika hasil filter nihil -->
+                            <tr id="rowKosong" style="display: none;">
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    Tidak ada data pesanan pada kategori atau kata kunci ini.
                                 </td>
                             </tr>
                         </tbody>
@@ -212,6 +248,77 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Logika Tab Filter, Pencarian Cepat & Urutan Terbaru di Atas -->
+<script>
+    let tabAktifSaatIni = 'AKTIF';
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const tbody = document.getElementById("tbodyPesanan");
+        const barisKosong = document.getElementById("rowKosong");
+        const semuaBaris = Array.from(tbody.querySelectorAll("tr[data-status]"));
+
+        // Balik urutan agar pesanan terbaru muncul paling atas
+        semuaBaris.reverse().forEach(row => tbody.insertBefore(row, barisKosong));
+
+        // Hitung jumlah masing-masing tab
+        let jmlAktif = 0;
+        let jmlRiwayat = 0;
+        semuaBaris.forEach(row => {
+            const st = row.getAttribute("data-status");
+            if (st === "DIAMBIL" || st === "HANGUS") {
+                jmlRiwayat++;
+            } else {
+                jmlAktif++;
+            }
+        });
+
+        document.getElementById("countAktif").innerText = jmlAktif;
+        document.getElementById("countRiwayat").innerText = jmlRiwayat;
+
+        terapkanFilterTabel();
+    });
+
+    function pilihTab(namaTab) {
+        tabAktifSaatIni = namaTab;
+        const btnAktif = document.getElementById("btnTabAktif");
+        const btnRiwayat = document.getElementById("btnTabRiwayat");
+
+        if (namaTab === 'AKTIF') {
+            btnAktif.className = "nav-link active fw-bold py-2";
+            btnRiwayat.className = "nav-link bg-light text-dark border fw-bold py-2";
+        } else {
+            btnRiwayat.className = "nav-link active fw-bold py-2";
+            btnAktif.className = "nav-link bg-light text-dark border fw-bold py-2";
+        }
+
+        terapkanFilterTabel();
+    }
+
+    function terapkanFilterTabel() {
+        const kataKunci = document.getElementById("searchPesanan").value.toLowerCase().trim();
+        const semuaBaris = document.querySelectorAll("#tbodyPesanan tr[data-status]");
+        let tampilCount = 0;
+
+        semuaBaris.forEach(row => {
+            const st = row.getAttribute("data-status");
+            const teksCari = (row.getAttribute("data-search") || "").toLowerCase();
+            const adalahRiwayat = (st === "DIAMBIL" || st === "HANGUS");
+
+            const cocokTab = (tabAktifSaatIni === 'RIWAYAT') ? adalahRiwayat : !adalahRiwayat;
+            const cocokCari = kataKunci === "" || teksCari.includes(kataKunci);
+
+            if (cocokTab && cocokCari) {
+                row.style.display = "";
+                tampilCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        document.getElementById("rowKosong").style.display = (tampilCount === 0) ? "" : "none";
+    }
+</script>
+
 <!-- Logika Scanner QR Code yang Sudah Disempurnakan -->
 <script>
     let isScanningCooldown = false;
@@ -230,6 +337,10 @@
         let statusLabel = document.getElementById('scanStatus');
         
         if (targetRow) {
+            // Pastikan tab berpindah otomatis sesuai status pesanan hasil scan
+            const st = targetRow.getAttribute("data-status");
+            pilihTab((st === "DIAMBIL" || st === "HANGUS") ? "RIWAYAT" : "AKTIF");
+
             statusLabel.innerText = "✅ Pesanan ditemukan!";
             statusLabel.className = "text-success fw-bold d-block mt-1";
 
@@ -243,7 +354,7 @@
                 let modalTimbang = new bootstrap.Modal(modalEl);
                 modalTimbang.show();
             } else {
-                alert("✅ Pesanan " + idBersih + " ditemukan (Status saat ini bukan menunggu penimbangan).");
+                alert("✅ Pesanan " + idBersih + " ditemukan (Status saat ini: " + st + ").");
             }
         } else {
             statusLabel.innerText = "❌ ID Reservasi tidak terdaftar.";
