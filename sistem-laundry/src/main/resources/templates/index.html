@@ -67,7 +67,7 @@
                         <option th:each="layanan : ${daftarLayanan}" 
                                 th:value="${layanan.idLayanan}" 
                                 th:disabled="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0}"
-                                th:text="${layanan.namaLayanan} + ' - Rp ' + ${layanan.harga} + '/kg (Sisa Kuota: ' + (${layanan.kuotaTersedia != null ? layanan.kuotaTersedia : 0}) + ')'">
+                                th:text="${layanan.jenisLayanan} + ' - Rp ' + ${layanan.harga} + '/kg (Sisa Kuota: ' + (${layanan.kuotaTersedia != null ? layanan.kuotaTersedia : 0}) + ')'">
                         </option>
                     </select>
                 </div>
