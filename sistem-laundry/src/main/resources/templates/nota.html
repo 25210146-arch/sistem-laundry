@@ -13,15 +13,22 @@
 <div class="container mt-5 mb-5" style="max-width: 550px;">
     
     <!-- Jika ID Pesanan tidak ditemukan -->
-    <div th:if="${pesanan == null}" class="alert alert-danger text-center">
-        <h5>Data Pesanan Tidak Ditemukan</h5>
+    <div th:if="${pesanan == null}" class="alert alert-danger text-center position-relative p-4 shadow-sm">
+        <a href="/" class="btn-close position-absolute top-0 end-0 m-3" aria-label="Tutup" title="Keluar ke Beranda"></a>
+        <h5 class="mt-2">Data Pesanan Tidak Ditemukan</h5>
         <a href="/" class="btn btn-primary btn-sm mt-2">Kembali ke Beranda</a>
     </div>
 
     <!-- Jika Pesanan Ditemukan -->
     <div th:if="${pesanan != null}" class="card shadow-sm">
-        <div class="card-header bg-dark text-white text-center py-3">
-            <h4 class="mb-0">E-NOTA & TIKET RESERVASI</h4>
+        <div class="card-header bg-dark text-white text-center py-3 position-relative">
+            <!-- Tanda Keluar / Tutup (X) di Pojok Kanan Atas -->
+            <a href="/" class="btn btn-sm btn-outline-light rounded-circle position-absolute top-0 end-0 m-2 px-2 py-0 fw-bold" 
+               title="Keluar & Kembali ke Beranda" style="line-height: 1.6;">
+                ✕
+            </a>
+
+            <h4 class="mb-0 mt-1">E-NOTA & TIKET RESERVASI</h4>
             <small th:text="'ID Reservasi: ' + ${pesanan.idPesanan}">ID Reservasi: RSV-20261124-001</small>
         </div>
         
@@ -109,7 +116,7 @@
             </div>
 
             <div class="d-grid gap-2 mt-4">
-                <a href="/" class="btn btn-outline-primary">Buat Pesanan Baru / Kembali</a>
+                <a href="/" class="btn btn-outline-danger fw-bold">✕ Tutup / Keluar ke Beranda</a>
             </div>
 
         </div>
