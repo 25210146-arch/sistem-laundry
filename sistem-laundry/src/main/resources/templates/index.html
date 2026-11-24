@@ -3,138 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pemesanan Laundry O2O</title>
-    <!-- Memanggil CSS Bootstrap agar tampilan rapi -->
+    <title>Reservasi Laundry Online (O2O)</title>
+    <!-- Menggunakan Bootstrap 5 agar tampilan rapi dan responsif -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .kartu-pesanan-ringkas {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .kartu-pesanan-ringkas:hover {
+            background-color: #f0f8ff;
+            border-color: #0d6efd !important;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body class="bg-light">
 
-<div class="container mt-5 mb-5" style="max-width: 600px;">
-    <!-- Notifikasi Jika Kuota Habis (dari Redirect Controller) -->
-    <div th:if="${param.error}" class="alert alert-danger text-center">
-        Mohon maaf, kuota untuk layanan yang Anda pilih sudah habis atau sedang penuh.
+<div class="container mt-4 mb-5" style="max-width: 600px;">
+    
+    <!-- Navigasi Atas: Tombol Pesanan Saya dengan Badge Notifikasi -->
+    <div class="d-flex justify-content-end mb-3">
+        <button type="button" id="btnPesananSaya" onclick="bukaModalPesananSaya()" 
+                class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm fw-bold position-relative">
+            🧺 Pesanan Saya
+            <span id="badgePesanan" style="display: none;" 
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                1
+            </span>
+        </button>
     </div>
 
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white text-center py-3">
-            <h3 class="mb-0">Reservasi Laundry</h3>
-            <small>Pesan sekarang, antar nanti tanpa antre!</small>
+            <h4 class="mb-0">Pemesanan & Reservasi Laundry</h4>
+            <small>Pesan slot online, antar cucian ke lokasi tanpa antre</small>
         </div>
         <div class="card-body p-4">
-            
-            <!-- Form mengarah ke /review-pesanan -->
+
+            <!-- Alert jika terjadi error kuota habis -->
+            <div th:if="${param.error}" class="alert alert-danger">
+                Maaf, kuota antrean untuk layanan yang dipilih baru saja penuh. Silakan pilih layanan lain.
+            </div>
+
+            <!-- Form mengarah ke /review-pesanan untuk konfirmasi ringkasan biaya -->
             <form action="/review-pesanan" method="post">
                 
-                <h5 class="mb-3 border-bottom pb-2">1. Data Diri</h5>
+                <h6 class="text-muted border-bottom pb-2 mb-3">1. Data Diri Pelanggan</h6>
                 <div class="mb-3">
-                    <label class="form-label">Nama Lengkap</label>
+                    <label class="form-label fw-bold">Nama Lengkap</label>
                     <input type="text" name="namaPelanggan" class="form-control" placeholder="Masukkan nama Anda" required>
                 </div>
+
                 <div class="mb-4">
-                    <label class="form-label">Nomor WhatsApp / HP</label>
-                    <input type="number" name="noHp" class="form-control" placeholder="Contoh: 08123456789" required>
-                    <div class="form-text">Nomor HP akan digunakan untuk mengecek nota dan mengambil pakaian.</div>
+                    <label class="form-label fw-bold">Nomor Telepon / WhatsApp</label>
+                    <input type="text" name="noHp" class="form-control" placeholder="Contoh: 081234567890" required>
                 </div>
 
-                <h5 class="mb-3 border-bottom pb-2">2. Pilihan Layanan (Cek Kuota)</h5>
+                <h6 class="text-muted border-bottom pb-2 mb-3">2. Pilih Layanan & Kategori</h6>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Paket Layanan (Kecepatan)</label>
+                    <select name="idLayanan" class="form-select" required>
+                        <option value="" disabled selected>-- Pilih Paket Layanan --</option>
+                        <!-- Menampilkan daftar layanan beserta sisa kuota secara dinamis -->
+                        <option th:each="layanan : ${daftarLayanan}" 
+                                th:value="${layanan.idLayanan}" 
+                                th:disabled="${layanan.kuotaTersedia <= 0}"
+                                th:text="${layanan.namaLayanan} + ' - Rp ' + ${layanan.harga} + '/kg (Sisa Kuota: ' + ${layanan.kuotaTersedia} + ')'">
+                        </option>
+                    </select>
+                </div>
+
                 <div class="mb-4">
-                    <!-- Looping data layanan dari database -->
-                    <div th:each="layanan : ${daftarLayanan}" class="form-check mb-2 p-3 border rounded" 
-                         th:classappend="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0} ? 'bg-secondary text-white opacity-50' : 'bg-white'">
-                        
-                        <input class="form-check-input ms-1" type="radio" name="idLayanan" 
-                               th:value="${layanan.idLayanan}" 
-                               th:disabled="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0}" required>
-                        
-                        <label class="form-check-label ms-2 d-block">
-                            <strong th:text="${layanan.jenisLayanan}">Reguler</strong> 
-                            <span class="float-end fw-bold" th:text="'Rp' + ${layanan.harga} + '/kg'">Rp7000/kg</span>
-                            <br>
-                            <small th:if="${layanan.kuotaTersedia != null && layanan.kuotaTersedia > 0}" 
-                                   class="text-success fw-bold" 
-                                   th:text="'Tersedia: ' + ${layanan.kuotaTersedia} + ' slot (Estimasi ' + ${layanan.estimasiJam} + ' jam)'"></small>
-                            <small th:if="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0}" 
-                                   class="text-white fw-bold">Kuota Penuh</small>
+                    <label class="form-label fw-bold">Kategori Cucian</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="kategoriCucian" id="kat1" value="Cuci + Lipat" checked>
+                        <label class="form-check-label" for="kat1">
+                            <strong>Cuci + Lipat</strong> (Sesuai harga paket dasar)
                         </label>
                     </div>
-                </div>
-
-                <h5 class="mb-3 border-bottom pb-2">3. Kategori Cucian</h5>
-                <div class="mb-4">
-                    <select name="kategoriCucian" class="form-select" required>
-                        <option value="Cuci Kering">Cuci Kering (Harga Standar)</option>
-                        <option value="Cuci + Lipat">Cuci + Lipat (Harga Standar)</option>
-                        <option value="Cuci + Setrika">Cuci + Setrika (+Rp5.000/kg)</option>
-                    </select>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="kategoriCucian" id="kat2" value="Cuci + Setrika">
+                        <label class="form-check-label" for="kat2">
+                            <strong>Cuci + Setrika</strong> (+ Rp 5.000 / kg)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="kategoriCucian" id="kat3" value="Setrika Saja">
+                        <label class="form-check-label" for="kat3">
+                            <strong>Setrika Saja</strong> (+ Rp 5.000 / kg)
+                        </label>
+                    </div>
                 </div>
 
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary btn-lg">Lanjut ke Ringkasan Pesanan</button>
                 </div>
+
             </form>
         </div>
     </div>
 </div>
 
-<!-- Tombol Melayang "Pesanan Saya" (Selalu tampil + Badge Notifikasi Angka 1 jika ada pesanan) -->
-<div style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;">
-    <button type="button" id="btnPesananSaya" onclick="cekPesananSaya()" 
-            class="btn btn-secondary btn-lg shadow rounded-pill px-4 fw-bold position-relative">
-        🧺 Pesanan Saya
-        <span id="badgePesanan" style="display: none;" 
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light">
-            1
-        </span>
-    </button>
-</div>
-
-<!-- Modal Peringatan Jika Belum Ada Pesanan -->
-<div class="modal fade" id="modalBelumAdaPesanan" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content text-center">
-            <div class="modal-body p-4">
-                <div class="fs-1 mb-2">🧺</div>
-                <h5 class="fw-bold mb-2">Belum Ada Pesanan</h5>
-                <p class="text-muted small mb-3">
-                    Anda belum membuat reservasi laundry. Silakan isi formulir di halaman ini untuk membuat pesanan dan mendapatkan E-Nota.
-                </p>
-                <button type="button" class="btn btn-primary btn-sm w-100 rounded-pill" data-bs-dismiss="modal">
-                    Mengerti
-                </button>
+<!-- Modal Pop-up: List Pesanan Sederhana (atau Info Belum Ada Pesanan) -->
+<div class="modal fade" id="modalPesananSaya" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white py-2">
+                <h6 class="modal-title fw-bold mb-0">🧺 Daftar Pesanan Saya</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
+            
+            <!-- Tampilan A: Jika Belum Ada Pesanan -->
+            <div id="kontenBelumAdaPesanan" class="modal-body text-center p-4" style="display: none;">
+                <div class="fs-1 mb-2">📭</div>
+                <h6 class="fw-bold">Belum Ada Pesanan</h6>
+                <p class="text-muted small mb-3">
+                    Anda belum memiliki riwayat reservasi laundry. Silakan isi formulir pemesanan di halaman ini terlebih dahulu.
+                </p>
+                <button type="button" class="btn btn-primary btn-sm px-4" data-bs-dismiss="modal">Buat Pesanan Sekarang</button>
+            </div>
+
+            <!-- Tampilan B: Jika Sudah Ada Pesanan (List Kartu Ringkas) -->
+            <div id="kontenListPesanan" class="modal-body p-3" style="display: none;">
+                <small class="text-muted d-block mb-2">Ketuk kartu pesanan di bawah untuk membuka E-Nota & QR Code lengkap:</small>
+                
+                <div onclick="bukaNotaLengkap()" class="card border shadow-sm p-3 kartu-pesanan-ringkas mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <strong class="text-primary" id="ringkasId">RSV-001</strong>
+                        <span id="ringkasBadgeStatus" class="badge bg-warning text-dark">STATUS</span>
+                    </div>
+                    <div class="small text-dark fw-semibold" id="ringkasKategori">Cuci + Setrika</div>
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+                        <span class="small text-muted" id="ringkasHarga">Menunggu Penimbangan</span>
+                        <span class="small text-primary fw-bold">Lihat E-Nota ➔</span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="button" onclick="hapusRiwayatPesanan()" class="btn btn-link btn-sm text-danger text-decoration-none p-0">
+                        🗑️ Hapus dari Daftar
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
-<!-- Bootstrap JS Bundle (diperlukan untuk pop-up modal) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Script untuk mengatur tampilan list sederhana & badge notifikasi -->
 <script>
-    function getLastOrderId() {
-        return localStorage.getItem("pesananLaundryTerakhir") || localStorage.getItem("laundry_last_order_id");
+    function perbaruiTampilanTombolPesanan() {
+        const idTerakhir = localStorage.getItem('pesananLaundryTerakhir');
+        const detailJson = localStorage.getItem('pesananLaundryDetail');
+        const btn = document.getElementById('btnPesananSaya');
+        const badge = document.getElementById('badgePesanan');
+
+        if (idTerakhir && idTerakhir.trim() !== '') {
+            let status = '';
+            if (detailJson) {
+                try { status = JSON.parse(detailJson).status || ''; } catch (e) {}
+            }
+
+            // Jika sudah DIAMBIL atau HANGUS: hilangkan badge merah angka 1, tapi tombol tetap bisa diklik untuk lihat riwayat
+            if (status === 'DIAMBIL' || status === 'HANGUS') {
+                btn.classList.remove('btn-outline-primary', 'btn-success');
+                btn.classList.add('btn-outline-secondary');
+                badge.style.display = 'none';
+            } else {
+                // Pesanan masih aktif berjalan -> tombol hijau + badge merah angka 1
+                btn.classList.remove('btn-outline-primary', 'btn-outline-secondary');
+                btn.classList.add('btn-success');
+                badge.style.display = 'inline-block';
+            }
+        } else {
+            btn.classList.remove('btn-success', 'btn-outline-secondary');
+            btn.classList.add('btn-outline-primary');
+            badge.style.display = 'none';
+        }
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const lastOrderId = getLastOrderId();
-        const btn = document.getElementById("btnPesananSaya");
-        const badge = document.getElementById("badgePesanan");
+    document.addEventListener("DOMContentLoaded", perbaruiTampilanTombolPesanan);
 
-        if (lastOrderId) {
-            // Ubah tombol jadi hijau & tampilkan lingkaran merah angka 1
-            btn.classList.remove("btn-secondary");
-            btn.classList.add("btn-success");
-            badge.style.display = "inline-block";
-        }
-    });
+    function bukaModalPesananSaya() {
+        const idTerakhir = localStorage.getItem('pesananLaundryTerakhir');
+        const detailJson = localStorage.getItem('pesananLaundryDetail');
 
-    function cekPesananSaya() {
-        const lastOrderId = getLastOrderId();
-        if (lastOrderId) {
-            window.location.href = "/nota?id=" + lastOrderId;
+        if (idTerakhir && idTerakhir.trim() !== '') {
+            document.getElementById('kontenBelumAdaPesanan').style.display = 'none';
+            document.getElementById('kontenListPesanan').style.display = 'block';
+
+            let detail = { id: idTerakhir, status: 'AKTIF', kategori: 'Layanan Laundry', harga: 'Klik untuk cek detail' };
+            if (detailJson) {
+                try { detail = Object.assign(detail, JSON.parse(detailJson)); } catch (e) {}
+            }
+
+            document.getElementById('ringkasId').innerText = detail.id;
+            document.getElementById('ringkasKategori').innerText = detail.kategori;
+            document.getElementById('ringkasHarga').innerText = detail.harga;
+
+            const badgeEl = document.getElementById('ringkasBadgeStatus');
+            badgeEl.innerText = detail.status;
+            if (detail.status === 'DIAMBIL' || detail.status === 'SELESAI') {
+                badgeEl.className = 'badge bg-success';
+            } else if (detail.status === 'HANGUS') {
+                badgeEl.className = 'badge bg-danger';
+            } else if (detail.status === 'DIPROSES' || detail.status === 'DIKONFIRMASI_ADMIN') {
+                badgeEl.className = 'badge bg-primary';
+            } else {
+                badgeEl.className = 'badge bg-warning text-dark';
+            }
         } else {
-            const modal = new bootstrap.Modal(document.getElementById("modalBelumAdaPesanan"));
-            modal.show();
+            document.getElementById('kontenListPesanan').style.display = 'none';
+            document.getElementById('kontenBelumAdaPesanan').style.display = 'block';
         }
+
+        const modal = new bootstrap.Modal(document.getElementById('modalPesananSaya'));
+        modal.show();
+    }
+
+    function bukaNotaLengkap() {
+        const idTerakhir = localStorage.getItem('pesananLaundryTerakhir');
+        if (idTerakhir) {
+            window.location.href = '/nota?id=' + encodeURIComponent(idTerakhir);
+        }
+    }
+
+    function hapusRiwayatPesanan() {
+        localStorage.removeItem('pesananLaundryTerakhir');
+        localStorage.removeItem('pesananLaundryDetail');
+        perbaruiTampilanTombolPesanan();
+        bootstrap.Modal.getInstance(document.getElementById('modalPesananSaya')).hide();
     }
 </script>
 

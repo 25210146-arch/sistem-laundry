@@ -123,14 +123,22 @@
     </div>
 </div>
 
-<!-- Script untuk menyimpan ID Pesanan ke browser & merender QR Code -->
+<!-- Script untuk menyimpan detail ringkas pesanan & merender QR Code -->
 <script th:inline="javascript">
     var idReservasi = /*[[${pesanan != null ? pesanan.idPesanan : ''}]]*/ '';
     var statusPesanan = /*[[${pesanan != null ? pesanan.status : ''}]]*/ '';
+    var kategoriCucian = /*[[${pesanan != null ? pesanan.kategoriCucian : ''}]]*/ '';
+    var totalHarga = /*[[${pesanan != null && pesanan.totalHarga != null ? pesanan.totalHarga : ''}]]*/ '';
     
-    // Simpan ID pesanan terakhir secara otomatis ke memori browser pelanggan
+    // Simpan ringkasan pesanan terakhir ke memori browser pelanggan
     if (idReservasi !== '') {
         localStorage.setItem('pesananLaundryTerakhir', idReservasi);
+        localStorage.setItem('pesananLaundryDetail', JSON.stringify({
+            id: idReservasi,
+            status: statusPesanan,
+            kategori: kategoriCucian,
+            harga: totalHarga !== '' ? 'Rp ' + totalHarga : 'Menunggu Penimbangan'
+        }));
     }
 
     // Render QR Code jika status sudah dikonfirmasi/diproses/selesai
