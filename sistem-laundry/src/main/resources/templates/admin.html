@@ -1,100 +1,314 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - POS Laundry</title>
+    <title>Dashboard Admin - POS Laundry O2O</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Library untuk Kamera Scanner QR Code -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-</head>
-<body class="bg-light">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f4f7fb;
+            background-image: 
+                radial-gradient(rgba(14, 165, 233, 0.18) 1.2px, transparent 1.2px),
+                linear-gradient(135deg, #e0f2fe 0%, #f8fafc 45%, #eef2ff 100%);
+            background-size: 26px 26px, 100% 100%;
+            min-height: 100vh;
+            color: #0f172a;
+        }
 
-<nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">📦 POS & Reservasi Laundry (Admin)</span>
-        <div class="d-flex align-items-center gap-3">
+        /* Navbar Glassmorphism Terang */
+        .navbar-glass {
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(14, 165, 233, 0.15);
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #0284c7, #4f46e5);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .clock-pill {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 999px;
+            padding: 6px 14px;
+        }
+
+        /* Kartu Glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.07), 0 0 0 1px rgba(14, 165, 233, 0.12);
+            overflow: hidden;
+        }
+
+        .panel-header-gradient {
+            background: linear-gradient(135deg, #0284c7, #2563eb, #4f46e5);
+            color: #ffffff;
+            padding: 14px 20px;
+        }
+
+        /* Kartu Statistik Laporan Harian */
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 18px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+        }
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+        .stat-blue::before { background: #2563eb; }
+        .stat-emerald::before { background: #10b981; }
+        .stat-cyan::before { background: #06b6d4; }
+        .stat-indigo::before { background: #4f46e5; }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Area Scanner QR */
+        #reader {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px dashed #7dd3fc !important;
+            background: #f8fafc;
+        }
+        #reader button {
+            border-radius: 10px !important;
+            padding: 6px 14px !important;
+            font-weight: 600 !important;
+            border: none !important;
+            background: linear-gradient(135deg, #0284c7, #2563eb) !important;
+            color: #fff !important;
+            margin: 6px 0 !important;
+        }
+
+        .scan-input {
+            background: #f0f9ff;
+            border: 1.5px solid #bae6fd;
+            border-radius: 12px;
+            color: #0369a1;
+            letter-spacing: 0.5px;
+        }
+
+        /* Tab Filter Modern */
+        .nav-pills .nav-link {
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #0284c7, #2563eb) !important;
+            color: #ffffff !important;
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.25);
+        }
+
+        /* Tabel Bersih & Modern */
+        .table-modern thead th {
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 700;
+            border-bottom: 1.5px solid #e2e8f0;
+            padding: 13px 14px;
+        }
+        .table-modern tbody td {
+            padding: 14px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+        .table-modern tbody tr:hover {
+            background-color: rgba(240, 249, 255, 0.75);
+        }
+
+        /* Search Input */
+        .search-box {
+            border-radius: 10px;
+            border: 1.5px solid #cbd5e1;
+            padding: 7px 14px;
+            font-size: 0.88rem;
+        }
+        .search-box:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.14);
+        }
+
+        /* Modal Modern */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-glass sticky-top mb-4 py-2">
+    <div class="container-fluid px-3 px-md-4">
+        <div class="d-flex align-items-center gap-2">
+            <span class="brand-icon"><i class="bi bi-qr-code-scan"></i></span>
+            <div>
+                <div class="fw-bold text-dark lh-1" style="font-size: 1.05rem;">POS &amp; Reservasi Laundry</div>
+                <small class="text-muted" style="font-size: 0.75rem;">Admin Control Panel • O2O System</small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 gap-md-3">
             <!-- Jam Real-Time di Navbar -->
-            <span class="badge bg-secondary fs-6 fw-normal px-3 py-2 d-none d-md-inline-block" id="jamRealtimeNavbar">
+            <span class="clock-pill d-none d-lg-inline-block" id="jamRealtimeNavbar">
                 🕒 Memuat waktu...
             </span>
             <div class="d-flex gap-2">
-                <a href="/" class="btn btn-outline-light btn-sm" target="_blank">Lihat Web Pelanggan</a>
-                <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+                <a href="/" class="btn btn-outline-primary btn-sm rounded-3 fw-semibold px-3" target="_blank">
+                    <i class="bi bi-globe2 me-1"></i> Web Pelanggan
+                </a>
+                <a href="/logout" class="btn btn-danger btn-sm rounded-3 fw-semibold px-3">
+                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                </a>
             </div>
         </div>
     </div>
 </nav>
 
-<div class="container-fluid px-4">
+<div class="container-fluid px-3 px-md-4 pb-5">
 
     <!-- PANEL LAPORAN HARIAN OPERASIONAL ADMIN -->
-    <div class="card shadow-sm mb-4 border-0">
-        <div class="card-header bg-dark text-white d-flex flex-wrap justify-content-between align-items-center py-2 gap-2">
-            <span class="fw-bold">📊 Laporan Harian Operasional</span>
-            <!-- Hari, Tanggal & Jam Real-Time -->
-            <small class="fw-semibold text-warning" id="jamRealtimeLaporan">
-                🕒 Memuat tanggal & jam...
+    <div class="glass-panel mb-4">
+        <div class="panel-header-gradient d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="fw-bold d-flex align-items-center gap-2">
+                <i class="bi bi-bar-chart-line-fill"></i> Laporan Harian Operasional
+            </span>
+            <small class="fw-semibold px-3 py-1 rounded-pill bg-white bg-opacity-25 text-white" id="jamRealtimeLaporan">
+                🕒 Memuat tanggal &amp; jam...
             </small>
         </div>
-        <div class="card-body bg-white py-3">
-            <div class="row g-3 text-center">
+        <div class="p-3 p-md-4">
+            <div class="row g-3">
                 <div class="col-6 col-md-3">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <small class="text-muted d-block mb-1">Pesanan Masuk Hari Ini</small>
-                        <h4 class="fw-bold text-primary mb-0" th:text="${pesananHariIni} + ' Pesanan'">0 Pesanan</h4>
+                    <div class="stat-card stat-blue h-100 d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted fw-semibold d-block mb-1">Pesanan Masuk Hari Ini</small>
+                            <h4 class="fw-bold text-primary mb-0" th:text="${pesananHariIni} + ' Pesanan'">0 Pesanan</h4>
+                        </div>
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary d-none d-sm-flex">
+                            <i class="bi bi-inbox-fill"></i>
+                        </div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <small class="text-muted d-block mb-1">Selesai / Diambil</small>
-                        <h4 class="fw-bold text-success mb-0" th:text="${selesaiHariIni} + ' Cucian'">0 Cucian</h4>
+                    <div class="stat-card stat-emerald h-100 d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted fw-semibold d-block mb-1">Selesai / Diambil</small>
+                            <h4 class="fw-bold text-success mb-0" th:text="${selesaiHariIni} + ' Cucian'">0 Cucian</h4>
+                        </div>
+                        <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <small class="text-muted d-block mb-1">Total Berat Masuk</small>
-                        <h4 class="fw-bold text-info mb-0" th:text="${totalBeratHariIni} + ' Kg'">0.0 Kg</h4>
+                    <div class="stat-card stat-cyan h-100 d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted fw-semibold d-block mb-1">Total Berat Masuk</small>
+                            <h4 class="fw-bold text-info mb-0" th:text="${totalBeratHariIni} + ' Kg'">0.0 Kg</h4>
+                        </div>
+                        <div class="stat-icon bg-info bg-opacity-10 text-info d-none d-sm-flex">
+                            <i class="bi bi-speedometer2"></i>
+                        </div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <small class="text-muted d-block mb-1">Pendapatan Hari Ini</small>
-                        <h4 class="fw-bold text-success mb-0" th:text="'Rp ' + ${totalPendapatanHariIni}">Rp 0</h4>
+                    <div class="stat-card stat-indigo h-100 d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted fw-semibold d-block mb-1">Pendapatan Hari Ini</small>
+                            <h4 class="fw-bold text-success mb-0" th:text="'Rp ' + ${totalPendapatanHariIni}">Rp 0</h4>
+                        </div>
+                        <div class="stat-icon bg-success bg-opacity-10 text-success d-none d-sm-flex">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row g-4">
         
         <!-- KOLOM KIRI: SCANNER QR CODE -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-primary">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">📷 Scan QR Pelanggan</h5>
+        <div class="col-lg-4">
+            <div class="glass-panel h-100">
+                <div class="panel-header-gradient d-flex align-items-center gap-2">
+                    <i class="bi bi-camera-fill"></i>
+                    <h6 class="mb-0 fw-bold">Scan QR Pelanggan</h6>
                 </div>
-                <div class="card-body text-center">
+                <div class="p-3 p-md-4 text-center">
                     <div id="reader" style="width: 100%;"></div>
-                    <div class="mt-3">
-                        <label class="form-label fw-bold">Hasil Scan (ID Reservasi):</label>
-                        <input type="text" id="scanResult" class="form-control text-center fs-5 fw-bold text-primary" placeholder="Arahkan QR ke kamera..." readonly>
-                        <small id="scanStatus" class="text-muted d-block mt-1">Siap scan Drop-off (Timbang) maupun Pick-up (Ambil)</small>
+                    <div class="mt-3 text-start">
+                        <label class="form-label fw-bold small text-secondary mb-1">
+                            <i class="bi bi-upc-scan me-1 text-primary"></i> Hasil Scan (ID Reservasi):
+                        </label>
+                        <input type="text" id="scanResult" class="form-control scan-input text-center fs-5 fw-bold py-2" placeholder="Arahkan QR ke kamera..." readonly>
+                        <small id="scanStatus" class="text-muted d-block text-center mt-2">Siap scan Drop-off (Timbang) maupun Pick-up (Ambil)</small>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- KOLOM KANAN: TABEL PESANAN DENGAN TAB & PENCARIAN -->
-        <div class="col-md-8 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
+        <div class="col-lg-8">
+            <div class="glass-panel">
+                <div class="p-3 p-md-4 border-bottom bg-white bg-opacity-50">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                        <h5 class="mb-0">Daftar Reservasi & Cucian Masuk</h5>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0">Daftar Reservasi &amp; Cucian Masuk</h5>
+                            <small class="text-muted">Kelola antrean aktif, penimbangan, dan riwayat transaksi</small>
+                        </div>
                         <!-- Kotak Pencarian Cepat -->
-                        <div style="min-width: 240px;">
-                            <input type="text" id="searchPesanan" class="form-control form-control-sm" 
+                        <div style="min-width: 250px;">
+                            <input type="text" id="searchPesanan" class="form-control search-box" 
                                    placeholder="🔍 Cari ID, Nama, atau No. HP..." onkeyup="terapkanFilterTabel()">
                         </div>
                     </div>
@@ -114,14 +328,14 @@
                     </ul>
                 </div>
 
-                <div class="card-body p-0 table-responsive">
-                    <table class="table table-hover table-striped align-middle mb-0">
-                        <thead class="table-dark">
+                <div class="table-responsive">
+                    <table class="table table-modern align-middle mb-0">
+                        <thead>
                             <tr>
-                                <th>ID & Info Pelanggan</th>
-                                <th>Layanan & Kategori</th>
-                                <th>Berat & Tagihan</th>
-                                <th>Status & Waktu</th>
+                                <th>ID &amp; Info Pelanggan</th>
+                                <th>Layanan &amp; Kategori</th>
+                                <th>Berat &amp; Tagihan</th>
+                                <th>Status &amp; Waktu</th>
                                 <th class="text-center">Aksi / Tindakan</th>
                             </tr>
                         </thead>
@@ -133,92 +347,92 @@
                                 
                                 <!-- Info Dasar + Hari, Tanggal & Jam Pemesanan -->
                                 <td>
-                                    <strong class="text-primary d-block" th:text="${pesanan.idPesanan}">RSV-001</strong>
-                                    <span class="fw-semibold" th:text="${pesanan.pelanggan.nama}">Budi</span><br>
-                                    <small class="text-muted d-block" th:text="${pesanan.pelanggan.noHp}">08123</small>
-                                    <small th:if="${pesanan.tanggalPesan != null}" class="text-secondary d-block mt-1">
-                                        📅 <span th:text="${#temporals.format(pesanan.tanggalPesan, 'EEEE, dd MMM yyyy • HH:mm', new java.util.Locale('id', 'ID'))}">Selasa, 24 Nov 2026 • 14:30</span> WITA
+                                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold mb-1" th:text="${pesanan.idPesanan}">RSV-001</span>
+                                    <div class="fw-bold text-dark" th:text="${pesanan.pelanggan.nama}">Budi</div>
+                                    <small class="text-muted d-block"><i class="bi bi-whatsapp me-1 text-success"></i><span th:text="${pesanan.pelanggan.noHp}">08123</span></small>
+                                    <small th:if="${pesanan.tanggalPesan != null}" class="text-secondary d-block mt-1" style="font-size: 0.78rem;">
+                                        <i class="bi bi-calendar3 me-1"></i><span th:text="${#temporals.format(pesanan.tanggalPesan, 'EEEE, dd MMM yyyy • HH:mm', new java.util.Locale('id', 'ID'))}">Selasa, 24 Nov 2026 • 14:30</span> WITA
                                     </small>
                                 </td>
                                 
                                 <!-- Info Layanan -->
                                 <td>
-                                    <span class="badge bg-info text-dark mb-1" th:text="${pesanan.idLayanan}">Reguler</span><br>
-                                    <small th:text="${pesanan.kategoriCucian}">Cuci Komplit</small>
+                                    <span class="badge rounded-pill bg-info bg-opacity-10 text-info border border-info border-opacity-25 mb-1" th:text="${pesanan.idLayanan}">Reguler</span><br>
+                                    <small class="fw-semibold text-secondary" th:text="${pesanan.kategoriCucian}">Cuci Komplit</small>
                                 </td>
                                 
                                 <!-- Info Berat & Tagihan -->
                                 <td>
-                                    <span th:if="${pesanan.beratKg == null}" class="text-danger small"><i class="fw-bold">Belum ditimbang</i></span>
-                                    <span th:if="${pesanan.beratKg != null}" class="fw-bold" th:text="${pesanan.beratKg} + ' Kg'">2 Kg</span>
+                                    <span th:if="${pesanan.beratKg == null}" class="badge bg-danger bg-opacity-10 text-danger fw-semibold">Belum ditimbang</span>
+                                    <span th:if="${pesanan.beratKg != null}" class="fw-bold text-dark" th:text="${pesanan.beratKg} + ' Kg'">2 Kg</span>
                                     <br>
-                                    <span th:if="${pesanan.totalHarga != null}" class="text-success fw-bold" th:text="'Rp' + ${pesanan.totalHarga}">Rp14000</span>
+                                    <span th:if="${pesanan.totalHarga != null}" class="text-success fw-bold" th:text="'Rp ' + ${pesanan.totalHarga}">Rp 14000</span>
                                 </td>
 
                                 <!-- Status & Waktu -->
                                 <td>
-                                    <span class="badge" 
+                                    <span class="badge rounded-pill px-3 py-1" 
                                           th:classappend="${pesanan.status == 'MENUNGGU_KONFIRMASI'} ? 'bg-warning text-dark' : 
                                                           (${pesanan.status == 'DIKONFIRMASI_ADMIN'} ? 'bg-primary' : 
                                                           (${pesanan.status == 'DIPROSES'} ? 'bg-info text-dark' : 
                                                           (${pesanan.status == 'SELESAI'} ? 'bg-success' : 'bg-secondary')))"
                                           th:text="${pesanan.status}">Status</span>
                                     <br>
-                                    <small th:if="${pesanan.status == 'DIKONFIRMASI_ADMIN' && pesanan.batasWaktuDropoff != null}" class="text-danger d-block mt-1">
+                                    <small th:if="${pesanan.status == 'DIKONFIRMASI_ADMIN' && pesanan.batasWaktuDropoff != null}" class="text-danger d-block mt-1" style="font-size: 0.78rem;">
                                         Drop-off s.d: <br>
-                                        <span th:text="${#temporals.format(pesanan.batasWaktuDropoff, 'dd MMM, HH:mm')}">24 Nov, 16:00</span> WITA
+                                        <span class="fw-semibold" th:text="${#temporals.format(pesanan.batasWaktuDropoff, 'dd MMM, HH:mm')}">24 Nov, 16:00</span> WITA
                                     </small>
-                                    <small th:if="${pesanan.status == 'DIPROSES' && pesanan.estimasiSelesai != null}" class="text-primary d-block mt-1">
+                                    <small th:if="${pesanan.status == 'DIPROSES' && pesanan.estimasiSelesai != null}" class="text-primary d-block mt-1" style="font-size: 0.78rem;">
                                         Est. Selesai: <br>
-                                        <span th:text="${#temporals.format(pesanan.estimasiSelesai, 'EEEE, dd MMM • HH:mm', new java.util.Locale('id', 'ID'))}">Rabu, 25 Nov • 14:30</span> WITA
+                                        <span class="fw-semibold" th:text="${#temporals.format(pesanan.estimasiSelesai, 'EEEE, dd MMM • HH:mm', new java.util.Locale('id', 'ID'))}">Rabu, 25 Nov • 14:30</span> WITA
                                     </small>
                                 </td>
 
                                 <!-- Tombol Aksi Berdasarkan Status -->
-                                <td class="text-center">
+                                <td class="text-center" style="min-width: 145px;">
                                     
                                     <!-- Aksi: Menunggu Konfirmasi -->
-                                    <div th:if="${pesanan.status == 'MENUNGGU_KONFIRMASI'}">
-                                        <form action="/admin/konfirmasi" method="post" class="d-inline">
+                                    <div th:if="${pesanan.status == 'MENUNGGU_KONFIRMASI'}" class="d-grid gap-1">
+                                        <form action="/admin/konfirmasi" method="post">
                                             <input type="hidden" name="idPesanan" th:value="${pesanan.idPesanan}">
-                                            <button type="submit" class="btn btn-warning btn-sm fw-bold w-100 mb-1">Terima Booking</button>
+                                            <button type="submit" class="btn btn-warning btn-sm fw-bold w-100 rounded-3">Terima Booking</button>
                                         </form>
-                                        <button class="btn btn-outline-primary btn-sm fw-bold w-100" 
+                                        <button class="btn btn-outline-primary btn-sm fw-bold w-100 rounded-3" 
                                                 data-bs-toggle="modal" th:data-bs-target="'#modalTimbang' + ${pesanan.idPesanan}">
                                             Langsung Timbang
                                         </button>
                                     </div>
 
                                     <!-- Aksi: Dikonfirmasi (Tunggu Drop-off & Timbang) -->
-                                    <div th:if="${pesanan.status == 'DIKONFIRMASI_ADMIN'}">
-                                        <button class="btn btn-primary btn-sm fw-bold w-100 mb-1" 
+                                    <div th:if="${pesanan.status == 'DIKONFIRMASI_ADMIN'}" class="d-grid gap-1">
+                                        <button class="btn btn-primary btn-sm fw-bold w-100 rounded-3" 
                                                 data-bs-toggle="modal" th:data-bs-target="'#modalTimbang' + ${pesanan.idPesanan}">
                                             Timbang Cucian
                                         </button>
-                                        <form action="/admin/update-status" method="post" class="d-inline">
+                                        <form action="/admin/update-status" method="post">
                                             <input type="hidden" name="idPesanan" th:value="${pesanan.idPesanan}">
                                             <input type="hidden" name="statusBaru" value="HANGUS">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100" onclick="return confirm('Batalkan pesanan ini dan kembalikan kuota?')">Tandai Hangus</button>
+                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-3" onclick="return confirm('Batalkan pesanan ini dan kembalikan kuota?')">Tandai Hangus</button>
                                         </form>
                                     </div>
 
                                     <!-- Aksi: Diproses -> Selesai -->
-                                    <form th:if="${pesanan.status == 'DIPROSES'}" action="/admin/update-status" method="post" class="d-inline">
+                                    <form th:if="${pesanan.status == 'DIPROSES'}" action="/admin/update-status" method="post">
                                         <input type="hidden" name="idPesanan" th:value="${pesanan.idPesanan}">
                                         <input type="hidden" name="statusBaru" value="SELESAI">
-                                        <button type="submit" class="btn btn-info btn-sm fw-bold w-100">Tandai Selesai</button>
+                                        <button type="submit" class="btn btn-info text-white btn-sm fw-bold w-100 rounded-3">Tandai Selesai</button>
                                     </form>
 
                                     <!-- Aksi: Selesai -> Diambil -->
                                     <div th:if="${pesanan.status == 'SELESAI'}">
-                                        <button class="btn btn-success btn-sm fw-bold w-100" 
+                                        <button class="btn btn-success btn-sm fw-bold w-100 rounded-3" 
                                                 data-bs-toggle="modal" th:data-bs-target="'#modalAmbil' + ${pesanan.idPesanan}">
-                                            Bayar & Diambil
+                                            Bayar &amp; Diambil
                                         </button>
                                     </div>
 
                                     <!-- Penanda jika sudah di riwayat -->
-                                    <span th:if="${pesanan.status == 'DIAMBIL' || pesanan.status == 'HANGUS'}" class="text-muted small">
+                                    <span th:if="${pesanan.status == 'DIAMBIL' || pesanan.status == 'HANGUS'}" class="badge bg-light text-secondary border">
                                         Selesai / Arsip
                                     </span>
 
@@ -226,7 +440,8 @@
                             </tr>
                             <!-- Baris kosong jika hasil filter nihil -->
                             <tr id="rowKosong" style="display: none;">
-                                <td colspan="5" class="text-center text-muted py-4">
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox fs-3 d-block mb-2 opacity-50"></i>
                                     Tidak ada data pesanan pada kategori atau kata kunci ini.
                                 </td>
                             </tr>
@@ -245,12 +460,12 @@
      th:if="${pesanan.status == 'MENUNGGU_KONFIRMASI' || pesanan.status == 'DIKONFIRMASI_ADMIN'}">
     <div class="modal fade" th:id="'modalTimbang' + ${pesanan.idPesanan}" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-primary shadow">
+            <div class="modal-content shadow-lg">
                 <form action="/admin/timbang" method="post">
-                    <div class="modal-header bg-primary text-white">
+                    <div class="modal-header panel-header-gradient border-0">
                         <div>
-                            <h5 class="modal-title fw-bold mb-0">🧾 Scan Masuk (Drop-off) & Timbang</h5>
-                            <small th:text="'Kode Reservasi: ' + ${pesanan.idPesanan}">Kode Reservasi: RSV-001</small>
+                            <h5 class="modal-title fw-bold mb-0"><i class="bi bi-qr-code me-1"></i> Scan Masuk (Drop-off) &amp; Timbang</h5>
+                            <small class="opacity-75" th:text="'Kode Reservasi: ' + ${pesanan.idPesanan}">Kode Reservasi: RSV-001</small>
                         </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
@@ -258,9 +473,9 @@
                         <input type="hidden" name="idPesanan" th:value="${pesanan.idPesanan}">
 
                         <!-- Rincian Data Sesuai E-Nota Pelanggan -->
-                        <div class="card bg-light border mb-3">
-                            <div class="card-body py-2 px-3">
-                                <small class="text-muted text-uppercase fw-bold d-block border-bottom pb-1 mb-2">
+                        <div class="card bg-light border-0 rounded-4 mb-3">
+                            <div class="card-body py-3 px-3">
+                                <small class="text-muted text-uppercase fw-bold d-block border-bottom pb-1 mb-2" style="font-size: 0.72rem;">
                                     Detail Data Pelanggan (Sesuai E-Nota)
                                 </small>
                                 <table class="table table-sm table-borderless mb-0 small">
@@ -293,12 +508,12 @@
                                        placeholder="0.0" required>
                                 <span class="input-group-text bg-primary text-white fw-bold">Kg</span>
                             </div>
-                            <div class="form-text">Total biaya & estimasi jam selesai akan dihitung otomatis setelah disimpan.</div>
+                            <div class="form-text">Total biaya &amp; estimasi jam selesai akan dihitung otomatis setelah disimpan.</div>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary fw-bold px-4">💾 Simpan Berat & Proses Cucian</button>
+                    <div class="modal-footer bg-light border-0">
+                        <button type="button" class="btn btn-light border rounded-3" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4 rounded-3">💾 Simpan Berat &amp; Proses Cucian</button>
                     </div>
                 </form>
             </div>
@@ -313,12 +528,12 @@
      th:if="${pesanan.status == 'SELESAI'}">
     <div class="modal fade" th:id="'modalAmbil' + ${pesanan.idPesanan}" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-success shadow">
+            <div class="modal-content shadow-lg">
                 <form action="/admin/update-status" method="post">
-                    <div class="modal-header bg-success text-white">
+                    <div class="modal-header bg-success text-white border-0">
                         <div>
-                            <h5 class="modal-title fw-bold mb-0">✅ Scan Pengambilan (Pick-up) & Pelunasan</h5>
-                            <small th:text="'Kode Reservasi: ' + ${pesanan.idPesanan}">Kode Reservasi: RSV-001</small>
+                            <h5 class="modal-title fw-bold mb-0"><i class="bi bi-check2-circle me-1"></i> Scan Pengambilan (Pick-up) &amp; Pelunasan</h5>
+                            <small class="opacity-75" th:text="'Kode Reservasi: ' + ${pesanan.idPesanan}">Kode Reservasi: RSV-001</small>
                         </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
@@ -326,14 +541,14 @@
                         <input type="hidden" name="idPesanan" th:value="${pesanan.idPesanan}">
                         <input type="hidden" name="statusBaru" value="DIAMBIL">
 
-                        <div class="alert alert-success py-2 small fw-bold text-center mb-3">
-                            ✨ Cucian sudah selesai & siap diserahkan kepada pelanggan!
+                        <div class="alert alert-success border-0 rounded-3 py-2 small fw-bold text-center mb-3">
+                            ✨ Cucian sudah selesai &amp; siap diserahkan kepada pelanggan!
                         </div>
 
                         <!-- Rincian Lengkap E-Nota + Berat & Harga -->
-                        <div class="card bg-light border mb-3">
-                            <div class="card-body py-2 px-3">
-                                <small class="text-muted text-uppercase fw-bold d-block border-bottom pb-1 mb-2">
+                        <div class="card bg-light border-0 rounded-4 mb-3">
+                            <div class="card-body py-3 px-3">
+                                <small class="text-muted text-uppercase fw-bold d-block border-bottom pb-1 mb-2" style="font-size: 0.72rem;">
                                     Rincian E-Nota Akhir Pelanggan
                                 </small>
                                 <table class="table table-sm table-borderless mb-0 small">
@@ -366,14 +581,14 @@
                         </div>
 
                         <!-- Kotak Highlight Total Pembayaran -->
-                        <div class="p-3 bg-success bg-opacity-10 border border-success rounded text-center">
+                        <div class="p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-4 text-center">
                             <small class="text-success fw-bold text-uppercase d-block">Total Tagihan yang Harus Dibayar</small>
                             <h2 class="fw-bold text-success mb-0" th:text="'Rp ' + ${pesanan.totalHarga}">Rp 25000</h2>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-success fw-bold px-4">💵 Konfirmasi Lunas & Serahkan Cucian</button>
+                    <div class="modal-footer bg-light border-0">
+                        <button type="button" class="btn btn-light border rounded-3" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-success fw-bold px-4 rounded-3">💵 Konfirmasi Lunas &amp; Serahkan Cucian</button>
                     </div>
                 </form>
             </div>
@@ -525,24 +740,24 @@
 
             if (modalTimbangEl) {
                 statusLabel.innerText = "📥 Scan Drop-off: " + idBersih + " siap ditimbang!";
-                statusLabel.className = "text-primary fw-bold d-block mt-1";
+                statusLabel.className = "text-primary fw-bold d-block text-center mt-2";
                 new bootstrap.Modal(modalTimbangEl).show();
             } else if (modalAmbilEl) {
                 statusLabel.innerText = "📤 Scan Pick-up: " + idBersih + " siap diambil & dibayar!";
-                statusLabel.className = "text-success fw-bold d-block mt-1";
+                statusLabel.className = "text-success fw-bold d-block text-center mt-2";
                 new bootstrap.Modal(modalAmbilEl).show();
             } else if (st === "DIPROSES") {
                 statusLabel.innerText = "⏳ Pesanan " + idBersih + " masih dalam proses pencucian.";
-                statusLabel.className = "text-info fw-bold d-block mt-1";
+                statusLabel.className = "text-info fw-bold d-block text-center mt-2";
                 alert("⏳ Pesanan " + idBersih + " saat ini masih berstatus DIPROSES (sedang dicuci/disetrika).");
             } else {
                 statusLabel.innerText = "ℹ️ Pesanan " + idBersih + " sudah berstatus " + st + ".";
-                statusLabel.className = "text-secondary fw-bold d-block mt-1";
+                statusLabel.className = "text-secondary fw-bold d-block text-center mt-2";
                 alert("ℹ️ Pesanan " + idBersih + " sudah selesai transaksi (Status: " + st + ").");
             }
         } else {
             statusLabel.innerText = "❌ ID Reservasi tidak terdaftar.";
-            statusLabel.className = "text-danger fw-bold d-block mt-1";
+            statusLabel.className = "text-danger fw-bold d-block text-center mt-2";
             alert("❌ ID Reservasi (" + idBersih + ") tidak ditemukan di daftar pesanan!");
         }
     }

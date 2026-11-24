@@ -1,31 +1,232 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservasi Laundry Online (O2O)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f4f7fb;
+            background-image: 
+                radial-gradient(rgba(14, 165, 233, 0.2) 1.25px, transparent 1.25px),
+                linear-gradient(135deg, #e0f2fe 0%, #f8fafc 48%, #e0e7ff 100%);
+            background-size: 26px 26px, 100% 100%;
+            min-height: 100vh;
+            color: #0f172a;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Cahaya Latar Halus */
+        .orb-cyan {
+            position: fixed;
+            top: -80px;
+            left: -60px;
+            width: 340px;
+            height: 340px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.22) 0%, transparent 70%);
+            filter: blur(45px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .orb-indigo {
+            position: fixed;
+            bottom: -90px;
+            right: -60px;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+            filter: blur(50px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .main-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 620px;
+        }
+
+        /* Kartu Glassmorphism Utama */
+        .glass-card-pro {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px -12px rgba(15, 23, 42, 0.09),
+                0 0 0 1px rgba(14, 165, 233, 0.14);
+            overflow: hidden;
+        }
+
+        .card-header-gradient {
+            background: linear-gradient(135deg, #0284c7, #2563eb, #4f46e5);
+            color: #ffffff;
+            padding: 28px 24px;
+            position: relative;
+        }
+
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #e0f2fe;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 999px;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #0284c7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1.5px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+
+        /* Input Modern dengan Ikon */
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.05rem;
+            transition: color 0.2s ease;
+        }
+        .form-control-modern, .form-select-modern {
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            color: #0f172a;
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-size: 0.94rem;
+            transition: all 0.2s ease;
+        }
+        .form-control-modern {
+            padding-left: 42px;
+        }
+        .form-control-modern:focus, .form-select-modern:focus {
+            background: #ffffff;
+            border-color: #0284c7;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+            outline: none;
+        }
+        .input-wrapper:focus-within i {
+            color: #0284c7;
+        }
+
+        /* Kartu Pilihan Radio Kategori Cucian */
+        .radio-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 10px;
+        }
+        .radio-card:hover {
+            border-color: #7dd3fc;
+            background: #f0f9ff;
+        }
+        .radio-card:has(input:checked) {
+            border-color: #0284c7;
+            background: #f0f9ff;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1);
+        }
+        .radio-card input[type="radio"] {
+            margin-top: 0;
+            cursor: pointer;
+        }
+
+        /* Tombol Submit Modern */
+        .btn-modern {
+            background: linear-gradient(135deg, #0284c7, #2563eb, #4f46e5);
+            background-size: 200% auto;
+            border: none;
+            border-radius: 14px;
+            padding: 13px 20px;
+            font-weight: 700;
+            color: #ffffff;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+            transition: all 0.3s ease;
+        }
+        .btn-modern:hover:not(:disabled) {
+            background-position: right center;
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(37, 99, 235, 0.34);
+            color: #ffffff;
+        }
+        .btn-modern:disabled {
+            background: #94a3b8;
+            box-shadow: none;
+        }
+
+        /* Kartu Ringkas di Modal Pesanan Saya */
         .kartu-pesanan-ringkas {
             cursor: pointer;
+            border-radius: 16px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
             transition: all 0.2s ease;
         }
         .kartu-pesanan-ringkas:hover {
-            background-color: #f0f8ff;
-            border-color: #0d6efd !important;
+            background-color: #f0f9ff;
+            border-color: #0284c7 !important;
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.12);
+        }
+
+        .modal-content {
+            border-radius: 20px;
+            overflow: hidden;
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container mt-4 mb-5" style="max-width: 600px;">
+<div class="orb-cyan"></div>
+<div class="orb-indigo"></div>
+
+<div class="container main-wrapper mt-4 mb-5 px-3">
     
-    <!-- Navigasi Atas: Tombol Pesanan Saya dengan Badge Notifikasi -->
-    <div class="d-flex justify-content-end mb-3">
+    <!-- Navigasi Atas: Brand Ringkas & Tombol Pesanan Saya -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-3 text-white" 
+                  style="width: 34px; height: 34px; background: linear-gradient(135deg, #0284c7, #4f46e5);">
+                <i class="bi bi-droplet-half"></i>
+            </span>
+            <span class="fw-bold text-dark">O2O Laundry</span>
+        </div>
+
         <button type="button" id="btnPesananSaya" onclick="bukaModalPesananSaya()" 
-                class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm fw-bold position-relative">
-            🧺 Pesanan Saya
+                class="btn btn-outline-primary btn-sm rounded-pill px-3 py-2 shadow-sm fw-bold position-relative bg-white">
+            <i class="bi bi-basket2-fill me-1"></i> Pesanan Saya
             <span id="badgePesanan" style="display: none;" 
                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 1
@@ -33,48 +234,69 @@
         </button>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white text-center py-3">
-            <h4 class="mb-0">Pemesanan & Reservasi Laundry</h4>
-            <small>Pesan slot online, antar cucian ke lokasi tanpa antre</small>
+    <div class="glass-card-pro">
+        <!-- Header Gradien -->
+        <div class="card-header-gradient text-center">
+            <div class="brand-pill">
+                <i class="bi bi-lightning-charge-fill"></i> RESERVASI ONLINE TANPA ANTRE
+            </div>
+            <h4 class="fw-bold mb-1">Pemesanan &amp; Reservasi Laundry</h4>
+            <p class="small mb-0 opacity-75">Pesan slot secara online, antar cucian ke lokasi dengan QR Code</p>
         </div>
-        <div class="card-body p-4">
+
+        <div class="p-4 p-md-5">
 
             <!-- Alert jika terjadi error kuota habis -->
-            <div th:if="${param.error}" class="alert alert-danger">
-                Maaf, kuota antrean untuk layanan yang dipilih baru saja penuh. Silakan pilih layanan lain.
+            <div th:if="${param.error}" class="alert alert-danger border-0 rounded-4 d-flex align-items-center gap-2 small">
+                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                <span>Maaf, kuota antrean untuk layanan yang dipilih baru saja penuh. Silakan pilih layanan lain.</span>
             </div>
 
             <!-- Peringatan Pembatasan: Maksimal 1 Pesanan Aktif -->
-            <div id="alertPesananAktif" class="alert alert-warning border-warning shadow-sm mb-4" style="display: none;">
-                <h6 class="fw-bold mb-1">⏳ Anda Masih Memiliki Pesanan Aktif</h6>
+            <div id="alertPesananAktif" class="alert alert-warning border-warning rounded-4 shadow-sm mb-4" style="display: none;">
+                <h6 class="fw-bold mb-1 d-flex align-items-center gap-1">
+                    <i class="bi bi-hourglass-split"></i> Anda Masih Memiliki Pesanan Aktif
+                </h6>
                 <p class="small mb-2">
                     Setiap pelanggan hanya dapat membuat <strong>1 reservasi aktif</strong> dalam satu waktu. 
                     Harap tunggu hingga pesanan <strong id="alertIdAktif">RSV-001</strong> selesai dan diambil sebelum membuat pesanan baru.
                 </p>
-                <button type="button" onclick="bukaNotaLengkap()" class="btn btn-warning btn-sm fw-bold">
-                    Lihat Status & E-Nota Pesanan ➔
+                <button type="button" onclick="bukaNotaLengkap()" class="btn btn-warning btn-sm fw-bold rounded-3">
+                    Lihat Status &amp; E-Nota Pesanan <i class="bi bi-arrow-right ms-1"></i>
                 </button>
             </div>
 
             <!-- Form mengarah ke /review-pesanan untuk konfirmasi ringkasan biaya -->
             <form id="formReservasi" action="/review-pesanan" method="post" onsubmit="return validasiPesananAktif()">
                 <fieldset id="fieldsetForm">
-                    <h6 class="text-muted border-bottom pb-2 mb-3">1. Data Diri Pelanggan</h6>
+                    
+                    <div class="section-title">
+                        <i class="bi bi-person-badge"></i> 1. Data Diri Pelanggan
+                    </div>
+
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nama Lengkap</label>
-                        <input type="text" name="namaPelanggan" class="form-control" placeholder="Masukkan nama Anda" required>
+                        <label class="form-label small fw-semibold text-secondary">Nama Lengkap</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-person"></i>
+                            <input type="text" name="namaPelanggan" class="form-control form-control-modern" placeholder="Masukkan nama Anda" required>
+                        </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-bold">Nomor Telepon / WhatsApp</label>
-                        <input type="text" name="noHp" class="form-control" placeholder="Contoh: 081234567890" required>
+                        <label class="form-label small fw-semibold text-secondary">Nomor Telepon / WhatsApp</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-whatsapp"></i>
+                            <input type="text" name="noHp" class="form-control form-control-modern" placeholder="Contoh: 081234567890" required>
+                        </div>
                     </div>
 
-                    <h6 class="text-muted border-bottom pb-2 mb-3">2. Pilih Layanan & Kategori</h6>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Paket Layanan (Kecepatan)</label>
-                        <select name="idLayanan" class="form-select" required>
+                    <div class="section-title mt-2">
+                        <i class="bi bi-sliders"></i> 2. Pilih Layanan &amp; Kategori
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold text-secondary">Paket Layanan (Kecepatan)</label>
+                        <select name="idLayanan" class="form-select form-select-modern" required>
                             <option value="" disabled selected>-- Pilih Paket Layanan --</option>
                             <option th:each="layanan : ${daftarLayanan}" 
                                     th:value="${layanan.idLayanan}" 
@@ -85,76 +307,91 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-bold">Kategori Cucian</label>
-                        <div class="form-check">
+                        <label class="form-label small fw-semibold text-secondary d-block mb-2">Kategori Cucian</label>
+                        
+                        <label class="radio-card" for="kat1">
                             <input class="form-check-input" type="radio" name="kategoriCucian" id="kat1" value="Cuci + Lipat" checked>
-                            <label class="form-check-label" for="kat1">
-                                <strong>Cuci + Lipat</strong> (Sesuai harga paket dasar)
-                            </label>
-                        </div>
-                        <div class="form-check">
+                            <div>
+                                <div class="fw-bold text-dark small">Cuci + Lipat</div>
+                                <small class="text-muted">Sesuai harga paket dasar</small>
+                            </div>
+                        </label>
+
+                        <label class="radio-card" for="kat2">
                             <input class="form-check-input" type="radio" name="kategoriCucian" id="kat2" value="Cuci + Setrika">
-                            <label class="form-check-label" for="kat2">
-                                <strong>Cuci + Setrika</strong> (+ Rp 5.000 / kg)
-                            </label>
-                        </div>
-                        <div class="form-check">
+                            <div>
+                                <div class="fw-bold text-dark small">Cuci + Setrika</div>
+                                <small class="text-primary fw-semibold">+ Rp 5.000 / kg</small>
+                            </div>
+                        </label>
+
+                        <label class="radio-card" for="kat3">
                             <input class="form-check-input" type="radio" name="kategoriCucian" id="kat3" value="Setrika Saja">
-                            <label class="form-check-label" for="kat3">
-                                <strong>Setrika Saja</strong> (+ Rp 5.000 / kg)
-                            </label>
-                        </div>
+                            <div>
+                                <div class="fw-bold text-dark small">Setrika Saja</div>
+                                <small class="text-primary fw-semibold">+ Rp 5.000 / kg</small>
+                            </div>
+                        </label>
                     </div>
 
-                    <div class="d-grid">
-                        <button type="submit" id="btnSubmitReservasi" class="btn btn-primary btn-lg">Lanjut ke Ringkasan Pesanan</button>
+                    <div class="d-grid pt-2">
+                        <button type="submit" id="btnSubmitReservasi" class="btn btn-modern btn-lg">
+                            Lanjut ke Ringkasan Pesanan <i class="bi bi-arrow-right-short ms-1"></i>
+                        </button>
                     </div>
                 </fieldset>
             </form>
         </div>
+    </div>
+
+    <!-- Link Halus ke Portal Admin -->
+    <div class="text-center mt-4">
+        <a th:href="@{/login}" class="text-decoration-none small text-muted">
+            <i class="bi bi-shield-lock me-1"></i> Login Portal Admin
+        </a>
     </div>
 </div>
 
 <!-- Modal Pop-up: List Pesanan Sederhana (atau Info Belum Ada Pesanan) -->
 <div class="modal fade" id="modalPesananSaya" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-dark text-white py-2">
-                <h6 class="modal-title fw-bold mb-0">🧺 Daftar Pesanan Saya</h6>
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 text-white py-3" style="background: linear-gradient(135deg, #0284c7, #4f46e5);">
+                <h6 class="modal-title fw-bold mb-0"><i class="bi bi-basket2-fill me-2"></i>Daftar Pesanan Saya</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
             
             <!-- Tampilan A: Jika Belum Ada Pesanan -->
             <div id="kontenBelumAdaPesanan" class="modal-body text-center p-4" style="display: none;">
-                <div class="fs-1 mb-2">📭</div>
-                <h6 class="fw-bold">Belum Ada Pesanan</h6>
+                <div class="fs-1 mb-2 text-primary opacity-75"><i class="bi bi-inbox"></i></div>
+                <h6 class="fw-bold text-dark">Belum Ada Pesanan</h6>
                 <p class="text-muted small mb-3">
                     Anda belum memiliki riwayat reservasi laundry. Silakan isi formulir pemesanan di halaman ini terlebih dahulu.
                 </p>
-                <button type="button" class="btn btn-primary btn-sm px-4" data-bs-dismiss="modal">Buat Pesanan Sekarang</button>
+                <button type="button" class="btn btn-primary btn-sm px-4 rounded-3 fw-semibold" data-bs-dismiss="modal">Buat Pesanan Sekarang</button>
             </div>
 
             <!-- Tampilan B: Jika Sudah Ada Pesanan (List Kartu Ringkas) -->
-            <div id="kontenListPesanan" class="modal-body p-3" style="display: none;">
-                <small class="text-muted d-block mb-2">Ketuk kartu pesanan di bawah untuk membuka E-Nota & QR Code lengkap:</small>
+            <div id="kontenListPesanan" class="modal-body p-4" style="display: none;">
+                <small class="text-muted d-block mb-2">Ketuk kartu pesanan di bawah untuk membuka E-Nota &amp; QR Code lengkap:</small>
                 
-                <div onclick="bukaNotaLengkap()" class="card border shadow-sm p-3 kartu-pesanan-ringkas mb-3">
+                <div onclick="bukaNotaLengkap()" class="p-3 kartu-pesanan-ringkas mb-3">
                     <div class="d-flex justify-content-between align-items-start mb-1">
                         <strong class="text-primary" id="ringkasId">RSV-001</strong>
-                        <span id="ringkasBadgeStatus" class="badge bg-warning text-dark">STATUS</span>
+                        <span id="ringkasBadgeStatus" class="badge rounded-pill bg-warning text-dark">STATUS</span>
                     </div>
                     <div class="small text-dark fw-semibold" id="ringkasKategori">Cuci + Setrika</div>
                     <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
                         <span class="small text-muted" id="ringkasHarga">Menunggu Penimbangan</span>
-                        <span class="small text-primary fw-bold">Lihat E-Nota ➔</span>
+                        <span class="small text-primary fw-bold">Lihat E-Nota <i class="bi bi-arrow-right"></i></span>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center">
-                    <button type="button" id="btnHapusRiwayat" onclick="hapusRiwayatPesanan()" class="btn btn-link btn-sm text-danger text-decoration-none p-0">
-                        🗑️ Hapus dari Daftar
+                    <button type="button" id="btnHapusRiwayat" onclick="hapusRiwayatPesanan()" class="btn btn-link btn-sm text-danger text-decoration-none p-0 fw-semibold">
+                        <i class="bi bi-trash me-1"></i> Hapus dari Daftar
                     </button>
-                    <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-light border btn-sm px-3 rounded-3" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
 
@@ -189,16 +426,14 @@
             const masihAktif = cekApakahAdaPesananAktif();
 
             if (!masihAktif) {
-                // Sudah DIAMBIL atau HANGUS -> form terbuka kembali & badge hilang
                 btn.classList.remove('btn-outline-primary', 'btn-success');
-                btn.classList.add('btn-outline-secondary');
+                btn.classList.add('btn-outline-secondary', 'bg-white');
                 badge.style.display = 'none';
                 alertAktif.style.display = 'none';
                 fieldset.disabled = false;
-                btnSubmit.innerText = 'Lanjut ke Ringkasan Pesanan';
+                btnSubmit.innerHTML = 'Lanjut ke Ringkasan Pesanan <i class="bi bi-arrow-right-short ms-1"></i>';
             } else {
-                // Masih aktif berjalan -> kunci form & tampilkan peringatan
-                btn.classList.remove('btn-outline-primary', 'btn-outline-secondary');
+                btn.classList.remove('btn-outline-primary', 'btn-outline-secondary', 'bg-white');
                 btn.classList.add('btn-success');
                 badge.style.display = 'inline-block';
                 document.getElementById('alertIdAktif').innerText = idTerakhir;
@@ -208,11 +443,11 @@
             }
         } else {
             btn.classList.remove('btn-success', 'btn-outline-secondary');
-            btn.classList.add('btn-outline-primary');
+            btn.classList.add('btn-outline-primary', 'bg-white');
             badge.style.display = 'none';
             alertAktif.style.display = 'none';
             fieldset.disabled = false;
-            btnSubmit.innerText = 'Lanjut ke Ringkasan Pesanan';
+            btnSubmit.innerHTML = 'Lanjut ke Ringkasan Pesanan <i class="bi bi-arrow-right-short ms-1"></i>';
         }
     }
 
@@ -248,16 +483,15 @@
             badgeEl.innerText = detail.status;
 
             if (detail.status === 'DIAMBIL' || detail.status === 'SELESAI') {
-                badgeEl.className = 'badge bg-success';
+                badgeEl.className = 'badge rounded-pill bg-success';
             } else if (detail.status === 'HANGUS') {
-                badgeEl.className = 'badge bg-danger';
+                badgeEl.className = 'badge rounded-pill bg-danger';
             } else if (detail.status === 'DIPROSES' || detail.status === 'DIKONFIRMASI_ADMIN') {
-                badgeEl.className = 'badge bg-primary';
+                badgeEl.className = 'badge rounded-pill bg-primary';
             } else {
-                badgeEl.className = 'badge bg-warning text-dark';
+                badgeEl.className = 'badge rounded-pill bg-warning text-dark';
             }
 
-            // Tombol hapus riwayat hanya muncul jika pesanan sudah selesai diambil / hangus
             btnHapus.style.display = (detail.status === 'DIAMBIL' || detail.status === 'HANGUS') ? 'inline-block' : 'none';
         } else {
             document.getElementById('kontenListPesanan').style.display = 'none';
