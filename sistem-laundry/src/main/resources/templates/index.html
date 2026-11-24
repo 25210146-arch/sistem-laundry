@@ -59,6 +59,14 @@
                     </div>
                 </div>
 
+                <h5 class="mb-3 border-bottom pb-2">3. Kategori Cucian</h5>
+                <div class="mb-4">
+                    <select name="kategoriCucian" class="form-select" required>
+                        <option value="Cuci + Lipat">Cuci + Lipat (Harga Standar)</option>
+                        <option value="Cuci + Setrika">Cuci + Setrika (+Rp5.000/kg)</option>
+                    </select>
+                </div>
+
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary btn-lg">Lanjut ke Ringkasan Pesanan</button>
                 </div>
@@ -80,7 +88,7 @@
         if (lastOrderId) {
             const container = document.getElementById("btnPesananSayaContainer");
             const link = document.getElementById("linkPesananSaya");
-            link.href = "/nota/" + lastOrderId;
+            link.href = "/nota?id=" + lastOrderId;
             container.style.display = "block";
         }
     });
