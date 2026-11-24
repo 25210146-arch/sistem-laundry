@@ -45,59 +45,71 @@
                 Maaf, kuota antrean untuk layanan yang dipilih baru saja penuh. Silakan pilih layanan lain.
             </div>
 
+            <!-- Peringatan Pembatasan: Maksimal 1 Pesanan Aktif -->
+            <div id="alertPesananAktif" class="alert alert-warning border-warning shadow-sm mb-4" style="display: none;">
+                <h6 class="fw-bold mb-1">⏳ Anda Masih Memiliki Pesanan Aktif</h6>
+                <p class="small mb-2">
+                    Setiap pelanggan hanya dapat membuat <strong>1 reservasi aktif</strong> dalam satu waktu. 
+                    Harap tunggu hingga pesanan <strong id="alertIdAktif">RSV-001</strong> selesai dan diambil sebelum membuat pesanan baru.
+                </p>
+                <button type="button" onclick="bukaNotaLengkap()" class="btn btn-warning btn-sm fw-bold">
+                    Lihat Status & E-Nota Pesanan ➔
+                </button>
+            </div>
+
             <!-- Form mengarah ke /review-pesanan untuk konfirmasi ringkasan biaya -->
-            <form action="/review-pesanan" method="post">
-                
-                <h6 class="text-muted border-bottom pb-2 mb-3">1. Data Diri Pelanggan</h6>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Nama Lengkap</label>
-                    <input type="text" name="namaPelanggan" class="form-control" placeholder="Masukkan nama Anda" required>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Nomor Telepon / WhatsApp</label>
-                    <input type="text" name="noHp" class="form-control" placeholder="Contoh: 081234567890" required>
-                </div>
-
-                <h6 class="text-muted border-bottom pb-2 mb-3">2. Pilih Layanan & Kategori</h6>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Paket Layanan (Kecepatan)</label>
-                    <select name="idLayanan" class="form-select" required>
-                        <option value="" disabled selected>-- Pilih Paket Layanan --</option>
-                        <option th:each="layanan : ${daftarLayanan}" 
-                                th:value="${layanan.idLayanan}" 
-                                th:disabled="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0}"
-                                th:text="${layanan.jenisLayanan} + ' - Rp ' + ${layanan.harga} + '/kg (Sisa Kuota: ' + (${layanan.kuotaTersedia != null ? layanan.kuotaTersedia : 0}) + ')'">
-                        </option>
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Kategori Cucian</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="kategoriCucian" id="kat1" value="Cuci + Lipat" checked>
-                        <label class="form-check-label" for="kat1">
-                            <strong>Cuci + Lipat</strong> (Sesuai harga paket dasar)
-                        </label>
+            <form id="formReservasi" action="/review-pesanan" method="post" onsubmit="return validasiPesananAktif()">
+                <fieldset id="fieldsetForm">
+                    <h6 class="text-muted border-bottom pb-2 mb-3">1. Data Diri Pelanggan</h6>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nama Lengkap</label>
+                        <input type="text" name="namaPelanggan" class="form-control" placeholder="Masukkan nama Anda" required>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="kategoriCucian" id="kat2" value="Cuci + Setrika">
-                        <label class="form-check-label" for="kat2">
-                            <strong>Cuci + Setrika</strong> (+ Rp 5.000 / kg)
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="kategoriCucian" id="kat3" value="Setrika Saja">
-                        <label class="form-check-label" for="kat3">
-                            <strong>Setrika Saja</strong> (+ Rp 5.000 / kg)
-                        </label>
-                    </div>
-                </div>
 
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">Lanjut ke Ringkasan Pesanan</button>
-                </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Nomor Telepon / WhatsApp</label>
+                        <input type="text" name="noHp" class="form-control" placeholder="Contoh: 081234567890" required>
+                    </div>
 
+                    <h6 class="text-muted border-bottom pb-2 mb-3">2. Pilih Layanan & Kategori</h6>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Paket Layanan (Kecepatan)</label>
+                        <select name="idLayanan" class="form-select" required>
+                            <option value="" disabled selected>-- Pilih Paket Layanan --</option>
+                            <option th:each="layanan : ${daftarLayanan}" 
+                                    th:value="${layanan.idLayanan}" 
+                                    th:disabled="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0}"
+                                    th:text="${layanan.jenisLayanan} + ' - Rp ' + ${layanan.harga} + '/kg (Sisa Kuota: ' + (${layanan.kuotaTersedia != null ? layanan.kuotaTersedia : 0}) + ')'">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Kategori Cucian</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="kategoriCucian" id="kat1" value="Cuci + Lipat" checked>
+                            <label class="form-check-label" for="kat1">
+                                <strong>Cuci + Lipat</strong> (Sesuai harga paket dasar)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="kategoriCucian" id="kat2" value="Cuci + Setrika">
+                            <label class="form-check-label" for="kat2">
+                                <strong>Cuci + Setrika</strong> (+ Rp 5.000 / kg)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="kategoriCucian" id="kat3" value="Setrika Saja">
+                            <label class="form-check-label" for="kat3">
+                                <strong>Setrika Saja</strong> (+ Rp 5.000 / kg)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" id="btnSubmitReservasi" class="btn btn-primary btn-lg">Lanjut ke Ringkasan Pesanan</button>
+                    </div>
+                </fieldset>
             </form>
         </div>
     </div>
@@ -139,7 +151,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center">
-                    <button type="button" onclick="hapusRiwayatPesanan()" class="btn btn-link btn-sm text-danger text-decoration-none p-0">
+                    <button type="button" id="btnHapusRiwayat" onclick="hapusRiwayatPesanan()" class="btn btn-link btn-sm text-danger text-decoration-none p-0">
                         🗑️ Hapus dari Daftar
                     </button>
                     <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Tutup</button>
@@ -153,32 +165,63 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    function perbaruiTampilanTombolPesanan() {
+    function cekApakahAdaPesananAktif() {
         const idTerakhir = localStorage.getItem('pesananLaundryTerakhir');
         const detailJson = localStorage.getItem('pesananLaundryDetail');
+        if (!idTerakhir || idTerakhir.trim() === '') return false;
+
+        let status = '';
+        if (detailJson) {
+            try { status = JSON.parse(detailJson).status || ''; } catch (e) {}
+        }
+        return (status !== 'DIAMBIL' && status !== 'HANGUS');
+    }
+
+    function perbaruiTampilanTombolPesanan() {
+        const idTerakhir = localStorage.getItem('pesananLaundryTerakhir');
         const btn = document.getElementById('btnPesananSaya');
         const badge = document.getElementById('badgePesanan');
+        const alertAktif = document.getElementById('alertPesananAktif');
+        const fieldset = document.getElementById('fieldsetForm');
+        const btnSubmit = document.getElementById('btnSubmitReservasi');
 
         if (idTerakhir && idTerakhir.trim() !== '') {
-            let status = '';
-            if (detailJson) {
-                try { status = JSON.parse(detailJson).status || ''; } catch (e) {}
-            }
+            const masihAktif = cekApakahAdaPesananAktif();
 
-            if (status === 'DIAMBIL' || status === 'HANGUS') {
+            if (!masihAktif) {
+                // Sudah DIAMBIL atau HANGUS -> form terbuka kembali & badge hilang
                 btn.classList.remove('btn-outline-primary', 'btn-success');
                 btn.classList.add('btn-outline-secondary');
                 badge.style.display = 'none';
+                alertAktif.style.display = 'none';
+                fieldset.disabled = false;
+                btnSubmit.innerText = 'Lanjut ke Ringkasan Pesanan';
             } else {
+                // Masih aktif berjalan -> kunci form & tampilkan peringatan
                 btn.classList.remove('btn-outline-primary', 'btn-outline-secondary');
                 btn.classList.add('btn-success');
                 badge.style.display = 'inline-block';
+                document.getElementById('alertIdAktif').innerText = idTerakhir;
+                alertAktif.style.display = 'block';
+                fieldset.disabled = true;
+                btnSubmit.innerText = 'Selesaikan Pesanan Aktif Terlebih Dahulu';
             }
         } else {
             btn.classList.remove('btn-success', 'btn-outline-secondary');
             btn.classList.add('btn-outline-primary');
             badge.style.display = 'none';
+            alertAktif.style.display = 'none';
+            fieldset.disabled = false;
+            btnSubmit.innerText = 'Lanjut ke Ringkasan Pesanan';
         }
+    }
+
+    function validasiPesananAktif() {
+        if (cekApakahAdaPesananAktif()) {
+            alert("Anda masih memiliki pesanan aktif yang belum selesai. Silakan selesaikan atau ambil pesanan tersebut terlebih dahulu.");
+            return false;
+        }
+        return true;
     }
 
     document.addEventListener("DOMContentLoaded", perbaruiTampilanTombolPesanan);
@@ -201,7 +244,9 @@
             document.getElementById('ringkasHarga').innerText = detail.harga;
 
             const badgeEl = document.getElementById('ringkasBadgeStatus');
+            const btnHapus = document.getElementById('btnHapusRiwayat');
             badgeEl.innerText = detail.status;
+
             if (detail.status === 'DIAMBIL' || detail.status === 'SELESAI') {
                 badgeEl.className = 'badge bg-success';
             } else if (detail.status === 'HANGUS') {
@@ -211,6 +256,9 @@
             } else {
                 badgeEl.className = 'badge bg-warning text-dark';
             }
+
+            // Tombol hapus riwayat hanya muncul jika pesanan sudah selesai diambil / hangus
+            btnHapus.style.display = (detail.status === 'DIAMBIL' || detail.status === 'HANGUS') ? 'inline-block' : 'none';
         } else {
             document.getElementById('kontenListPesanan').style.display = 'none';
             document.getElementById('kontenBelumAdaPesanan').style.display = 'block';
