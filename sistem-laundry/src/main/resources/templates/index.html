@@ -52,4 +52,39 @@
                             <br>
                             <small th:if="${layanan.kuotaTersedia != null && layanan.kuotaTersedia > 0}" 
                                    class="text-success fw-bold" 
-                                   th:text="'Tersedia: ' + ${layanan.ku
+                                   th:text="'Tersedia: ' + ${layanan.kuotaTersedia} + ' slot (Estimasi ' + ${layanan.estimasiJam} + ' jam)'"></small>
+                            <small th:if="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0}" 
+                                   class="text-white fw-bold">Kuota Penuh</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Lanjut ke Ringkasan Pesanan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tombol Melayang "Pesanan Saya" (Otomatis muncul jika ada riwayat pesanan di browser) -->
+<div id="btnPesananSayaContainer" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+    <a id="linkPesananSaya" href="#" class="btn btn-success btn-lg shadow rounded-pill px-4">
+        🧺 Pesanan Saya
+    </a>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const lastOrderId = localStorage.getItem("laundry_last_order_id");
+        if (lastOrderId) {
+            const container = document.getElementById("btnPesananSayaContainer");
+            const link = document.getElementById("linkPesananSaya");
+            link.href = "/nota/" + lastOrderId;
+            container.style.display = "block";
+        }
+    });
+</script>
+
+</body>
+</html>
