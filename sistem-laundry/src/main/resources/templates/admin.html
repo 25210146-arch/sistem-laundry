@@ -13,11 +13,51 @@
 <nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
     <div class="container-fluid">
         <span class="navbar-brand mb-0 h1">📦 POS & Reservasi Laundry (Admin)</span>
-        <a href="/" class="btn btn-outline-light btn-sm" target="_blank">Lihat Web Pelanggan</a>
+        <div class="d-flex gap-2">
+            <a href="/" class="btn btn-outline-light btn-sm" target="_blank">Lihat Web Pelanggan</a>
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+        </div>
     </div>
 </nav>
 
 <div class="container-fluid px-4">
+
+    <!-- PANEL LAPORAN HARIAN OPERASIONAL ADMIN -->
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
+            <span class="fw-bold">📊 Laporan Harian Operasional</span>
+            <small th:text="'Tanggal: ' + ${#temporals.format(tanggalLaporan, 'dd MMM yyyy')}">Tanggal: 24 Nov 2026</small>
+        </div>
+        <div class="card-body bg-white py-3">
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Pesanan Masuk Hari Ini</small>
+                        <h4 class="fw-bold text-primary mb-0" th:text="${pesananHariIni} + ' Pesanan'">0 Pesanan</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Selesai / Diambil</small>
+                        <h4 class="fw-bold text-success mb-0" th:text="${selesaiHariIni} + ' Cucian'">0 Cucian</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Total Berat Masuk</small>
+                        <h4 class="fw-bold text-info mb-0" th:text="${totalBeratHariIni} + ' Kg'">0.0 Kg</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Pendapatan Hari Ini</small>
+                        <h4 class="fw-bold text-success mb-0" th:text="'Rp ' + ${totalPendapatanHariIni}">Rp 0</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         
         <!-- KOLOM KIRI: SCANNER QR CODE -->

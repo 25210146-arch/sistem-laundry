@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -161,7 +162,39 @@ public class LaundryController {
         if (!Boolean.TRUE.equals(session.getAttribute("isAdminLoggedIn"))) {
             return "redirect:/login";
         }
-        model.addAttribute("daftarPesanan", pesananRepo.findAll());
+        
+        List<Pesanan> semuaPesanan = pesananRepo.findAll();
+        LocalDate hariIni = LocalDate.now();
+
+        long pesananHariIni = 0;
+        long selesaiHariIni = 0;
+        double totalBeratHariIni = 0.0;
+        double totalPendapatanHariIni = 0.0;
+
+        for (Pesanan p : semuaPesanan) {
+            if (p.getTanggalPesan() != null && p.getTanggalPesan().toLocalDate().equals(hariIni)) {
+                pesananHariIni++;
+                if ("SELESAI".equals(p.getStatus()) || "DIAMBIL".equals(p.getStatus())) {
+                    selesaiHariIni++;
+                }
+                if (!"HANGUS".equals(p.getStatus())) {
+                    if (p.getBeratKg() != null) {
+                        totalBeratHariIni += p.getBeratKg();
+                    }
+                    if (p.getTotalHarga() != null) {
+                        totalPendapatanHariIni += p.getTotalHarga();
+                    }
+                }
+            }
+        }
+
+        model.addAttribute("daftarPesanan", semuaPesanan);
+        model.addAttribute("tanggalLaporan", hariIni);
+        model.addAttribute("pesananHariIni", pesananHariIni);
+        model.addAttribute("selesaiHariIni", selesaiHariIni);
+        model.addAttribute("totalBeratHariIni", totalBeratHariIni);
+        model.addAttribute("totalPendapatanHariIni", totalPendapatanHariIni);
+
         return "admin"; 
     }
 
