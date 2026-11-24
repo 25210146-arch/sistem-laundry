@@ -26,7 +26,7 @@
     <div class="card shadow-sm mb-4 border-0">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
             <span class="fw-bold">📊 Laporan Harian Operasional</span>
-            <small th:text="'Tanggal: ' + ${#temporals.format(tanggalLaporan, 'dd MMM yyyy')}">Tanggal: 24 Nov 2026</small>
+            <small th:text="'Tanggal: ' + ${#temporals.format(tanggalLaporan, 'EEEE, dd MMM yyyy', new java.util.Locale('id', 'ID'))}">Tanggal: Selasa, 24 Nov 2026</small>
         </div>
         <div class="card-body bg-white py-3">
             <div class="row g-3 text-center">
@@ -122,11 +122,14 @@
                                 th:data-status="${pesanan.status}"
                                 th:data-search="${pesanan.idPesanan + ' ' + pesanan.pelanggan.nama + ' ' + pesanan.pelanggan.noHp}">
                                 
-                                <!-- Info Dasar -->
+                                <!-- Info Dasar + Hari, Tanggal & Jam Pemesanan -->
                                 <td>
                                     <strong class="text-primary d-block" th:text="${pesanan.idPesanan}">RSV-001</strong>
-                                    <span th:text="${pesanan.pelanggan.nama}">Budi</span><br>
-                                    <small class="text-muted" th:text="${pesanan.pelanggan.noHp}">08123</small>
+                                    <span class="fw-semibold" th:text="${pesanan.pelanggan.nama}">Budi</span><br>
+                                    <small class="text-muted d-block" th:text="${pesanan.pelanggan.noHp}">08123</small>
+                                    <small th:if="${pesanan.tanggalPesan != null}" class="text-secondary d-block mt-1">
+                                        📅 <span th:text="${#temporals.format(pesanan.tanggalPesan, 'EEEE, dd MMM yyyy • HH:mm', new java.util.Locale('id', 'ID'))}">Selasa, 24 Nov 2026 • 14:30</span> WITA
+                                    </small>
                                 </td>
                                 
                                 <!-- Info Layanan -->
@@ -152,9 +155,13 @@
                                                           (${pesanan.status == 'SELESAI'} ? 'bg-success' : 'bg-secondary')))"
                                           th:text="${pesanan.status}">Status</span>
                                     <br>
-                                    <small th:if="${pesanan.status == 'DIKONFIRMASI_ADMIN' && pesanan.batasWaktuDropoff != null}" class="text-danger">
+                                    <small th:if="${pesanan.status == 'DIKONFIRMASI_ADMIN' && pesanan.batasWaktuDropoff != null}" class="text-danger d-block mt-1">
                                         Drop-off s.d: <br>
-                                        <span th:text="${#temporals.format(pesanan.batasWaktuDropoff, 'HH:mm')}">14:00</span> WITA
+                                        <span th:text="${#temporals.format(pesanan.batasWaktuDropoff, 'dd MMM, HH:mm')}">24 Nov, 16:00</span> WITA
+                                    </small>
+                                    <small th:if="${pesanan.status == 'DIPROSES' && pesanan.estimasiSelesai != null}" class="text-primary d-block mt-1">
+                                        Est. Selesai: <br>
+                                        <span th:text="${#temporals.format(pesanan.estimasiSelesai, 'EEEE, dd MMM • HH:mm', new java.util.Locale('id', 'ID'))}">Rabu, 25 Nov • 14:30</span> WITA
                                     </small>
                                 </td>
 
