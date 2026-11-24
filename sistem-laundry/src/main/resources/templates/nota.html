@@ -116,11 +116,17 @@
     </div>
 </div>
 
-<!-- Script untuk merender teks ID Reservasi menjadi gambar QR Code -->
+<!-- Script untuk menyimpan ID Pesanan ke browser & merender QR Code -->
 <script th:inline="javascript">
     var idReservasi = /*[[${pesanan != null ? pesanan.idPesanan : ''}]]*/ '';
     var statusPesanan = /*[[${pesanan != null ? pesanan.status : ''}]]*/ '';
     
+    // Simpan ID pesanan terakhir secara otomatis ke memori browser pelanggan
+    if (idReservasi !== '') {
+        localStorage.setItem('pesananLaundryTerakhir', idReservasi);
+    }
+
+    // Render QR Code jika status sudah dikonfirmasi/diproses/selesai
     if (idReservasi !== '' && (statusPesanan === 'DIKONFIRMASI_ADMIN' || statusPesanan === 'DIPROSES' || statusPesanan === 'SELESAI')) {
         new QRCode(document.getElementById("qrcode"), {
             text: idReservasi,
