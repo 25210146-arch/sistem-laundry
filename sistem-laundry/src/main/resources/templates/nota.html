@@ -3,96 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pemesanan Laundry O2O</title>
-    <!-- Memanggil CSS Bootstrap agar tampilan rapi -->
+    <title>Nota & Tiket Reservasi Laundry</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Library JavaScript ringan untuk generate QR Code secara otomatis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-light">
 
-<div class="container mt-5 mb-5" style="max-width: 600px;">
-    <!-- Notifikasi Jika Kuota Habis (dari Redirect Controller) -->
-    <div th:if="${param.error}" class="alert alert-danger text-center">
-        Mohon maaf, kuota untuk layanan yang Anda pilih sudah habis atau sedang penuh.
+<div class="container mt-5 mb-5" style="max-width: 550px;">
+    
+    <!-- Jika ID Pesanan tidak ditemukan -->
+    <div th:if="${pesanan == null}" class="alert alert-danger text-center">
+        <h5>Data Pesanan Tidak Ditemukan</h5>
+        <a href="/" class="btn btn-primary btn-sm mt-2">Kembali ke Beranda</a>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white text-center py-3">
-            <h3 class="mb-0">Reservasi Laundry</h3>
-            <small>Pesan sekarang, antar nanti tanpa antre!</small>
+    <!-- Jika Pesanan Ditemukan -->
+    <div th:if="${pesanan != null}" class="card shadow-sm">
+        <div class="card-header bg-dark text-white text-center py-3">
+            <h4 class="mb-0">E-NOTA & TIKET RESERVASI</h4>
+            <small th:text="'ID Reservasi: ' + ${pesanan.idPesanan}">ID Reservasi: RSV-20261124-001</small>
         </div>
+        
         <div class="card-body p-4">
-            
-            <!-- Form mengarah ke /review-pesanan -->
-            <form action="/review-pesanan" method="post">
-                
-                <h5 class="mb-3 border-bottom pb-2">1. Data Diri</h5>
-                <div class="mb-3">
-                    <label class="form-label">Nama Lengkap</label>
-                    <input type="text" name="namaPelanggan" class="form-control" placeholder="Masukkan nama Anda" required>
-                </div>
-                <div class="mb-4">
-                    <label class="form-label">Nomor WhatsApp / HP</label>
-                    <input type="number" name="noHp" class="form-control" placeholder="Contoh: 08123456789" required>
-                    <div class="form-text">Nomor HP akan digunakan untuk mengecek nota dan mengambil pakaian.</div>
-                </div>
 
-                <h5 class="mb-3 border-bottom pb-2">2. Pilihan Layanan (Cek Kuota)</h5>
-                <div class="mb-4">
-                    <!-- Looping data layanan dari database -->
-                    <div th:each="layanan : ${daftarLayanan}" class="form-check mb-2 p-3 border rounded" 
-                         th:classappend="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0} ? 'bg-secondary text-white opacity-50' : 'bg-white'">
-                        
-                        <input class="form-check-input ms-1" type="radio" name="idLayanan" 
-                               th:value="${layanan.idLayanan}" 
-                               th:disabled="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0}" required>
-                        
-                        <label class="form-check-label ms-2 d-block">
-                            <strong th:text="${layanan.jenisLayanan}">Reguler</strong> 
-                            <span class="float-end fw-bold" th:text="'Rp' + ${layanan.harga} + '/kg'">Rp7000/kg</span>
-                            <br>
-                            <small th:if="${layanan.kuotaTersedia != null && layanan.kuotaTersedia > 0}" 
-                                   class="text-success fw-bold" 
-                                   th:text="'Tersedia: ' + ${layanan.kuotaTersedia} + ' slot (Estimasi ' + ${layanan.estimasiJam} + ' jam)'"></small>
-                            <small th:if="${layanan.kuotaTersedia == null || layanan.kuotaTersedia <= 0}" 
-                                   class="text-white fw-bold">Kuota Penuh</small>
-                        </label>
-                    </div>
-                </div>
+            <!-- STATUS 1: MENUNGGU KONFIRMASI ADMIN -->
+            <div th:if="${pesanan.status == 'MENUNGGU_KONFIRMASI'}" class="alert alert-warning text-center">
+                <h5 class="alert-heading">Menunggu Konfirmasi Admin</h5>
+                <p class="mb-2 small">Pesanan Anda telah terdaftar dan slot telah diamankan. Silakan muat ulang (refresh) halaman ini berkala untuk mendapatkan QR Code dan batas waktu antar.</p>
+                <button onclick="location.reload()" class="btn btn-warning btn-sm fw-bold">Refresh Status</button>
+            </div>
 
-                <h5 class="mb-3 border-bottom pb-2">3. Kategori Cucian</h5>
-                <div class="mb-4">
-                    <select name="kategoriCucian" class="form-select" required>
-                        <option value="Cuci Kering">Cuci Kering (Harga Standar)</option>
-                        <option value="Cuci + Lipat">Cuci + Lipat (Harga Standar)</option>
-                        <option value="Cuci + Setrika">Cuci + Setrika (+Rp5.000/kg)</option>
-                    </select>
-                </div>
+            <!-- STATUS 2: DIKONFIRMASI ADMIN (TAMPILKAN QR & BATAS DROP-OFF) -->
+            <div th:if="${pesanan.status == 'DIKONFIRMASI_ADMIN'}" class="alert alert-success text-center">
+                <h5 class="alert-heading">Reservasi Dikonfirmasi!</h5>
+                <p class="mb-1 small">Silakan bawa cucian Anda ke gerai sebelum batas waktu berikut:</p>
+                <h6 class="fw-bold text-danger mb-0" 
+                    th:text="${#temporals.format(pesanan.batasWaktuDropoff, 'dd MMM yyyy - HH:mm')} + ' WITA'">
+                    24 Nov 2026 - 14:00 WITA
+                </h6>
+                <small class="text-muted d-block mt-1">*Jika melewati batas waktu, pesanan otomatis hangus.</small>
+            </div>
 
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">Lanjut ke Ringkasan Pesanan</button>
+            <!-- STATUS 3: SEDANG DIPROSES / SELESAI / DIAMBIL -->
+            <div th:if="${pesanan.status == 'DIPROSES' || pesanan.status == 'SELESAI' || pesanan.status == 'DIAMBIL'}" 
+                 class="alert alert-primary text-center">
+                <h5 class="alert-heading mb-1" th:text="'Status: ' + ${pesanan.status}">Status: DIPROSES</h5>
+                <div th:if="${pesanan.estimasiSelesai != null}">
+                    <small>Estimasi Selesai:</small><br>
+                    <strong th:text="${#temporals.format(pesanan.estimasiSelesai, 'dd MMM yyyy - HH:mm')} + ' WITA'">25 Nov 2026 - 14:00 WITA</strong>
                 </div>
-            </form>
+            </div>
+
+            <!-- STATUS 4: HANGUS -->
+            <div th:if="${pesanan.status == 'HANGUS'}" class="alert alert-danger text-center">
+                <h5 class="alert-heading mb-1">PESANAN HANGUS</h5>
+                <small>Anda melewati batas waktu pengantaran barang ke lokasi.</small>
+            </div>
+
+            <!-- AREA QR CODE (Muncul jika sudah dikonfirmasi, diproses, atau selesai) -->
+            <div th:if="${pesanan.status == 'DIKONFIRMASI_ADMIN' || pesanan.status == 'DIPROSES' || pesanan.status == 'SELESAI'}" 
+                 class="text-center my-4 p-3 border rounded bg-white">
+                <div id="qrcode" class="d-flex justify-content-center mb-2"></div>
+                <strong class="d-block tracking-wider" th:text="${pesanan.idPesanan}">RSV-20261124-001</strong>
+                <small class="text-muted">Tunjukkan QR Code ini kepada Admin di lokasi</small>
+            </div>
+
+            <!-- RINCIAN PESANAN -->
+            <table class="table table-sm table-borderless mt-3">
+                <tr>
+                    <td class="text-muted">Nama Pelanggan</td>
+                    <td class="fw-bold text-end" th:text="${pesanan.pelanggan.nama}">Budi</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">No. Telepon</td>
+                    <td class="fw-bold text-end" th:text="${pesanan.pelanggan.noHp}">08123456789</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Kode Layanan</td>
+                    <td class="fw-bold text-end" th:text="${pesanan.idLayanan}">L001</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Kategori Cucian</td>
+                    <td class="fw-bold text-end" th:text="${pesanan.kategoriCucian}">Cuci + Setrika</td>
+                </tr>
+                <tr class="border-top">
+                    <td class="text-muted pt-2">Berat Cucian</td>
+                    <td class="fw-bold text-end pt-2" 
+                        th:text="${pesanan.beratKg != null} ? ${pesanan.beratKg} + ' Kg' : 'Belum ditimbang'">
+                        Belum ditimbang
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Total Tagihan</td>
+                    <td class="fw-bold text-end text-success fs-5" 
+                        th:text="${pesanan.totalHarga != null} ? 'Rp ' + ${pesanan.totalHarga} : 'Menunggu Penimbangan'">
+                        Menunggu Penimbangan
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Catatan Sementara Sebelum Ditimbang -->
+            <div th:if="${pesanan.totalHarga == null && pesanan.status != 'HANGUS'}" class="alert alert-secondary py-2 px-3 small text-center mt-2">
+                <em>"Tagihan akan diperbarui setelah cucian ditimbang di lokasi."</em>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <a href="/" class="btn btn-outline-primary">Buat Pesanan Baru / Kembali</a>
+            </div>
+
         </div>
     </div>
 </div>
 
-<!-- Tombol Melayang "Pesanan Saya" (Otomatis muncul jika ada riwayat pesanan di browser) -->
-<div id="btnPesananSayaContainer" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-    <a id="linkPesananSaya" href="#" class="btn btn-success btn-lg shadow rounded-pill px-4 fw-bold">
-        🧺 Pesanan Saya
-    </a>
-</div>
+<!-- Script untuk menyimpan ID Pesanan ke browser & merender QR Code -->
+<script th:inline="javascript">
+    var idReservasi = /*[[${pesanan != null ? pesanan.idPesanan : ''}]]*/ '';
+    var statusPesanan = /*[[${pesanan != null ? pesanan.status : ''}]]*/ '';
+    
+    // Simpan ID pesanan terakhir secara otomatis ke memori browser pelanggan
+    if (idReservasi !== '') {
+        localStorage.setItem('pesananLaundryTerakhir', idReservasi);
+    }
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const lastOrderId = localStorage.getItem("pesananLaundryTerakhir") || localStorage.getItem("laundry_last_order_id");
-        if (lastOrderId) {
-            const container = document.getElementById("btnPesananSayaContainer");
-            const link = document.getElementById("linkPesananSaya");
-            link.href = "/nota?id=" + lastOrderId;
-            container.style.display = "block";
-        }
-    });
+    // Render QR Code jika status sudah dikonfirmasi/diproses/selesai
+    if (idReservasi !== '' && (statusPesanan === 'DIKONFIRMASI_ADMIN' || statusPesanan === 'DIPROSES' || statusPesanan === 'SELESAI')) {
+        new QRCode(document.getElementById("qrcode"), {
+            text: idReservasi,
+            width: 160,
+            height: 160
+        });
+    }
 </script>
 
 </body>
