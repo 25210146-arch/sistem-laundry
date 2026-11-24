@@ -202,6 +202,14 @@
                 🕒 Memuat waktu...
             </span>
             <div class="d-flex gap-2">
+                <!-- Tombol Reset Data Demo -->
+                <form action="/admin/reset-demo" method="post" class="d-inline"
+                      onsubmit="return confirm('⚠️ Yakin ingin menghapus SEMUA data pesanan & pelanggan agar kembali 0?');">
+                    <button type="submit" class="btn btn-outline-warning btn-sm rounded-3 fw-semibold px-3">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Data
+                    </button>
+                </form>
+
                 <a href="/" class="btn btn-outline-primary btn-sm rounded-3 fw-semibold px-3" target="_blank">
                     <i class="bi bi-globe2 me-1"></i> Web Pelanggan
                 </a>

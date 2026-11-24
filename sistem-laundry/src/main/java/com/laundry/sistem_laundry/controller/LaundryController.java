@@ -264,4 +264,28 @@ public class LaundryController {
         }
         return "redirect:/admin";
     }
+
+    // FITUR BARU: RESET SEMUA DATA DEMO DARI DASHBOARD ADMIN
+    @PostMapping("/admin/reset-demo")
+    public String resetDataDemo(HttpSession session) {
+        if (!Boolean.TRUE.equals(session.getAttribute("isAdminLoggedIn"))) {
+            return "redirect:/login";
+        }
+        
+        // Hapus pesanan dulu (child), baru pelanggan (parent) agar tidak kena error Foreign Key
+        pesananRepo.deleteAll();
+        pelangganRepo.deleteAll();
+
+        // Kembalikan kuota layanan ke jumlah awal
+        for (LayananLaundry layanan : layananRepo.findAll()) {
+            if ("L02".equals(layanan.getIdLayanan())) {
+                layanan.setKuotaTersedia(5);
+            } else {
+                layanan.setKuotaTersedia(10);
+            }
+            layananRepo.save(layanan);
+        }
+
+        return "redirect:/admin";
+    }
 }
